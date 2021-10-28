@@ -1,4 +1,3 @@
 # flix-json
 
-Enter some useful information.
-
+A basic JSON parser in pure Flix
