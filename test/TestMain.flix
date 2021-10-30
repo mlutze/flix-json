@@ -8,4 +8,7 @@ namespace TestMain {
   @test
   def testEmptyObject02(): Bool = parse("    {    }    ") == Some(JsonObject(Map#{}))
 
+  @test
+  def testSingletonObject01(): Bool = parse("{\"key\": \"value\"}") == Some(JsonObject(Map#{"key" ->  JsonString("value")}))
+
 }
