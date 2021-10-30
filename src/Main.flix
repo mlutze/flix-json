@@ -1,6 +1,9 @@
 namespace Main { // TODO rename
+
+  /// Each main rule must start with a key character and consume trailing whitespace
+
   use Option.flatMap;
-  pub enum JsonElement {
+  pub enum JsonElement with Eq {
     case JsonObject(Map[String, JsonElement])
     case JsonArray(List[JsonElement])
     case JsonString(String)
@@ -12,8 +15,14 @@ namespace Main { // TODO rename
   type alias ParseMonad[t] = Option[(t, List[Char])]
 
 
-  def _parse(obj: String): JsonElement = {
-    object(String.toList(obj)) |> ???
+  pub def parse(obj: String): Option[JsonElement] = {
+    let in = String.toList(obj);
+    let* (_, tail) = whitespace(in);
+    let* (o, tail1) = object(tail);
+    match tail1 {
+      case Nil => Some(o)
+      case _ :: _ => None
+    }
   }
 
   def whitespace(in: List[Char]): ParseMonad[Unit] = match in {
@@ -26,10 +35,12 @@ namespace Main { // TODO rename
 
   def object(in: List[Char]): ParseMonad[JsonElement] = match in {
     case '{' :: tail =>
-      let* (keyVals, tail1) = keyVals(tail);
-      let* (_, tail2) = require('}', tail1);
+      let* (_, tail1) = whitespace(tail);
+      let* (keyVals, tail2) = keyVals(tail1);
+      let* (_, tail3) = require('}', tail2);
+      let* (_, tail4) = whitespace(tail3);
       let map = List.toMap(keyVals);
-      Some(JsonObject(map), tail2)
+      Some(JsonObject(map), tail4)
     case _ => None
   }
 
@@ -53,7 +64,12 @@ namespace Main { // TODO rename
           Some(list, tail5)
         case _ => None
       }
-    case _ => ???
+
+    // Case 2: end of list
+    case '}' :: _ => Some(Nil, in)
+
+    // Case 3: anything else is an error
+    case _ => None
   }
 
   def value(in: List[Char]): ParseMonad[JsonElement] = match in {
