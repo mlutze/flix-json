@@ -21,7 +21,7 @@ namespace Main { // TODO rename
     case '\t' :: tail => whitespace(tail)
     case '\r' :: tail => whitespace(tail)
     case '\n' :: tail => whitespace(tail)
-    case _ => Some(((), in))
+    case _ => Some((), in)
   }
 
   def object(in: List[Char]): ParseMonad[JsonElement] = match in {
@@ -29,7 +29,7 @@ namespace Main { // TODO rename
       let* (keyVals, tail1) = keyVals(tail);
       let* (_, tail2) = require('}', tail1);
       let map = List.toMap(keyVals);
-      Some((JsonObject(map), tail2))
+      Some(JsonObject(map), tail2)
     case _ => None
   }
 
@@ -56,20 +56,48 @@ namespace Main { // TODO rename
     case _ => ???
   }
 
-  def value(in: List[Char]): ParseMonad[JsonElement] = ???
+  def value(in: List[Char]): ParseMonad[JsonElement] = match in {
+    case '{' :: _ => object(in)
+    case '\"' :: _ => stringValue(in)
+    case 't' :: 'r' :: 'u' :: 'e' :: tail => Some(JsonBool(true), tail)
+    case 'f' :: 'a' :: 'l' :: 's' :: 'e' :: tail => Some(JsonBool(false), tail)
+    case 'n' :: 'u' :: 'l' :: 'l' :: tail => Some(JsonNull, tail)
+    case _ => None
+  }
 
   def require(char: Char, in: List[Char]): ParseMonad[Unit] = match in {
     case head :: tail if char == head => Some((), tail)
     case _ => None
   }
 
-  def string(in: List[Char]): ParseMonad[String] = {
-    let (_, tail) = require('\"', in);
-    let (contents, tail2) = stringContents(tail);
-    let (_, tail3) = require('\"', tail2);
-    let str = List.toString()
+  def stringValue(in: List[Char]): ParseMonad[JsonElement] = {
+    let* (str, tail) = string(in);
+    Some(JsonString(str), tail)
   }
 
-  def stringContents(in: List[Char]): ParseMonad[List[Char]] = ???
+  def string(in: List[Char]): ParseMonad[String] = {
+    let* (_, tail) = require('\"', in);
+    let* (contents, tail2) = stringContents(tail);
+    let* (_, tail3) = require('\"', tail2);
+    let str = listToString(contents);
+    Some(str, tail3)
+  }
 
+  def listToString(list: List[Char]): String = {
+    {
+      let sb = StringBuilder.new();
+      list |> List.foreach(c -> StringBuilder.appendChar!(sb, c));
+      StringBuilder.toString(sb)
+    } as & Pure
+  }
+
+  def stringContents(in: List[Char]): ParseMonad[List[Char]] = match in {
+    case '\"' :: _ => Some(Nil, in)
+    // TODO handle escapes
+    case c :: tail =>
+      let* (rest, tail2) = stringContents(tail);
+      Some(c :: rest, tail2)
+    // unexpected EOI
+    case Nil => None
+  }
 }
