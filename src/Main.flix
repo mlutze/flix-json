@@ -1,4 +1,4 @@
-namespace Main { // TODO rename
+namespace Json { // TODO rename
 
   /// Each main rule must start with a key character and consume trailing whitespace
 
@@ -136,12 +136,60 @@ namespace Main { // TODO rename
 
   def stringContents(in: List[Char]): ParseMonad[List[Char]] = match in {
     case '\"' :: _ => Some(Nil, in)
-    // TODO handle escapes
+
+    case '\\' :: '\"' :: tail =>
+      let* (rest, tail2) = stringContents(tail);
+      Some('\"' :: rest, tail2)
+
+    case '\\' :: '\\' :: tail =>
+      let* (rest, tail2) = stringContents(tail);
+      Some('\\' :: rest, tail2)
+
+    case '\\' :: '/' :: tail =>
+      let* (rest, tail2) = stringContents(tail);
+      Some('/' :: rest, tail2)
+
+    case '\\' :: 'b' :: tail =>
+      let* (rest, tail2) = stringContents(tail);
+      Some('\u0008' :: rest, tail2)
+
+    case '\\' :: 'f' :: tail =>
+      let* (rest, tail2) = stringContents(tail);
+      Some('\u000C' :: rest, tail2)
+
+    case '\\' :: 'n' :: tail =>
+      let* (rest, tail2) = stringContents(tail);
+      Some('\n' :: rest, tail2)
+
+    case '\\' :: 'r' :: tail =>
+      let* (rest, tail2) = stringContents(tail);
+      Some('\r' :: rest, tail2)
+
+    case '\\' :: 't' :: tail =>
+      let* (rest, tail2) = stringContents(tail);
+      Some('\t' :: rest, tail2)
+
+    case '\\' :: 'u' :: c1 :: c2 :: c3 :: c4 :: tail =>
+      let* (rest, tail2) = stringContents(tail);
+      let string = listToString(c1 :: c2 :: c3 :: c4 :: Nil);
+      let* intVal = hexToInt(string);
+      let char = Char.fromInt32(intVal);
+      Some(char :: rest, tail2)
+
     case c :: tail =>
       let* (rest, tail2) = stringContents(tail);
       Some(c :: rest, tail2)
     // unexpected EOI
     case Nil => None
+  }
+
+  def hexToInt(hex: String): Option[Int] = {
+    import java.lang.Integer:parseInt(String, Int32);
+    try {
+      Some(parseInt(hex, 16)) as & Pure
+    } catch {
+      case _: ##java.lang.NumberFormatException => None
+    }
   }
 
   def number(in: List[Char]): ParseMonad[JsonElement] = match in {

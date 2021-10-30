@@ -1,6 +1,6 @@
 namespace TestMain {
-  use Main.parse;
-  use Main.JsonElement.{JsonObject, JsonArray, JsonString, JsonFloat, JsonInt, JsonBool, JsonNull};
+  use Json.parse;
+  use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonFloat, JsonInt, JsonBool, JsonNull};
   
   @test
   def testEmptyObject01(): Bool = parse("{}") == Some(JsonObject(Map#{}))
@@ -10,6 +10,12 @@ namespace TestMain {
 
   @test
   def testSingletonString01(): Bool = parse("{\"key\": \"value\"}") == Some(JsonObject(Map#{"key" ->  JsonString("value")}))
+
+  @test
+  def testSingletonString02(): Bool = parse("{\"key\": \"\\t\"}") == Some(JsonObject(Map#{"key" ->  JsonString("\t")}))
+
+  @test
+  def testSingletonString03(): Bool = parse("{\"key\": \"\\u0021\"}") == Some(JsonObject(Map#{"key" ->  JsonString("!")}))
 
   @test
   def testDoubleString01(): Bool = 
