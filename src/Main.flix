@@ -7,7 +7,8 @@ namespace Main { // TODO rename
     case JsonObject(Map[String, JsonElement])
     case JsonArray(List[JsonElement])
     case JsonString(String)
-    case JsonNumber(Float)
+    case JsonInt(Int)
+    case JsonFloat(Float)
     case JsonBool(Bool)
     case JsonNull
   }
@@ -33,15 +34,14 @@ namespace Main { // TODO rename
     case _ => Some((), in)
   }
 
-  def object(in: List[Char]): ParseMonad[JsonElement] = match in {
-    case '{' :: tail =>
-      let* (_, tail1) = whitespace(tail);
-      let* (keyVals, tail2) = keyVals(tail1);
-      let* (_, tail3) = require('}', tail2);
-      let* (_, tail4) = whitespace(tail3);
-      let map = List.toMap(keyVals);
-      Some(JsonObject(map), tail4)
-    case _ => None
+  def object(in: List[Char]): ParseMonad[JsonElement] = {
+    let* (_, tail) = require('{', in);
+    let* (_, tail1) = whitespace(tail);
+    let* (keyVals, tail2) = keyVals(tail1);
+    let* (_, tail3) = require('}', tail2);
+    let* (_, tail4) = whitespace(tail3);
+    let map = List.toMap(keyVals);
+    Some(JsonObject(map), tail4)
   }
 
   def keyVals(in: List[Char]): ParseMonad[List[(String, JsonElement)]] = match in {
@@ -72,13 +72,40 @@ namespace Main { // TODO rename
     case _ => None
   }
 
+  def array(in: List[Char]): ParseMonad[JsonElement] = {
+    let* (_, tail) = require('[', in);
+    let* (_, tail1) = whitespace(tail);
+    let* (elems, tail2) = elements(tail1);
+    let* (_, tail3) = require(']', tail2);
+    Some(JsonArray(elems), tail3)
+  }
+
+  def elements(in: List[Char]): ParseMonad[List[JsonElement]] = match in {
+    case ']' :: _ => Some(Nil, in)
+    case _ =>
+      let* (val, tail) = value(in);
+      let* (_, tail1) = whitespace(tail);
+      match tail1 {
+        case ',' :: tail2 =>
+          let* (_, tail3) = whitespace(tail2);
+          let* (rest, tail4) = elements(tail3);
+          let list = val :: rest;
+          Some(list, tail4)
+        case ']' :: _ =>
+          let list = val :: Nil;
+          Some(list, tail1)
+        case _ => None
+      }
+  }
+
   def value(in: List[Char]): ParseMonad[JsonElement] = match in {
     case '{' :: _ => object(in)
+    case '[' :: _ => array(in)
     case '\"' :: _ => stringValue(in)
     case 't' :: 'r' :: 'u' :: 'e' :: tail => Some(JsonBool(true), tail)
     case 'f' :: 'a' :: 'l' :: 's' :: 'e' :: tail => Some(JsonBool(false), tail)
     case 'n' :: 'u' :: 'l' :: 'l' :: tail => Some(JsonNull, tail)
-    case _ => None
+    case _ => number(in)
   }
 
   def require(char: Char, in: List[Char]): ParseMonad[Unit] = match in {
@@ -116,4 +143,23 @@ namespace Main { // TODO rename
     // unexpected EOI
     case Nil => None
   }
+
+  def number(in: List[Char]): ParseMonad[JsonElement] = match in {
+    case c :: tail if isNumberChar(c) =>
+      let* (chars, tail1) = numberTail(tail);
+      let string = listToString(c :: chars);
+      let toIntRes = Int32.fromString(string) |> Result.map(JsonInt);
+      Result.withDefault(toIntRes)(Float64.fromString(string) |> Result.map(JsonFloat)) |> Result.toOption |> Option.map(val -> (val, tail1))
+    case _ => None
+  }
+
+  def isNumberChar(c: Char): Bool = Char.isDigit(c) or c == '+' or c == '-' or c == 'e' or c == 'E' or c == '.'
+
+  def numberTail(in: List[Char]): ParseMonad[List[Char]] = match in {
+    case c :: tail if isNumberChar(c) =>
+      let* (chars, tail1) = numberTail(tail);
+      Some(c :: chars, tail1)
+    case _ => Some(Nil, in)
+  }
+
 }
