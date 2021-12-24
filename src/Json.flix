@@ -7,8 +7,8 @@ namespace Json { // TODO rename
     case JsonObject(Map[String, JsonElement])
     case JsonArray(List[JsonElement])
     case JsonString(String)
-    case JsonInt(Int)
-    case JsonFloat(Float)
+    case JsonInt(Int32)
+    case JsonFloat(Float64)
     case JsonBool(Bool)
     case JsonNull
   }
@@ -183,7 +183,7 @@ namespace Json { // TODO rename
     case Nil => None
   }
 
-  def hexToInt(hex: String): Option[Int] = {
+  def hexToInt(hex: String): Option[Int32] = {
     import java.lang.Integer:parseInt(String, Int32);
     try {
       Some(parseInt(hex, 16)) as & Pure
