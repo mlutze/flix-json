@@ -129,7 +129,7 @@ namespace Json { // TODO rename
   def listToString(list: List[Char]): String = {
     {
       let sb = StringBuilder.new();
-      list |> List.foreach(c -> StringBuilder.appendChar!(sb, c));
+      list |> List.foreach(c -> StringBuilder.append!(c, sb));
       StringBuilder.toString(sb)
     } as & Pure
   }
@@ -184,9 +184,9 @@ namespace Json { // TODO rename
   }
 
   def hexToInt(hex: String): Option[Int32] = {
-    import java.lang.Integer:parseInt(String, Int32);
+    import static java.lang.Integer.parseInt(String, Int32): Int32 & Pure;
     try {
-      Some(parseInt(hex, 16)) as & Pure
+      Some(parseInt(hex, 16))
     } catch {
       case _: ##java.lang.NumberFormatException => None
     }
@@ -196,8 +196,9 @@ namespace Json { // TODO rename
     case c :: tail if isNumberChar(c) =>
       let* (chars, tail1) = numberTail(tail);
       let string = listToString(c :: chars);
-      let toIntRes = Int32.fromString(string) |> Result.map(JsonInt);
-      Result.withDefault(toIntRes)(Float64.fromString(string) |> Result.map(JsonFloat)) |> Result.toOption |> Option.map(val -> (val, tail1))
+      let toIntOpt = Int32.fromString(string) |> Result.map(JsonInt) |> Result.toOption;
+      let toFloatOpt = Float64.fromString(string) |> Result.map(JsonFloat) |> Result.toOption;
+      toIntOpt |> Option.withDefault(default = toFloatOpt) |> Option.map(val -> (val, tail1))
     case _ => None
   }
 
