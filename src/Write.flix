@@ -17,6 +17,21 @@ namespace Json/Write {
         case JsonNull => "null"
     }
 
+    pub def toPrettyString(tab: Int32, json: JsonElement): String = match json {
+        case JsonObject(map) =>
+            let contents = map
+                |> Map.joinWith((k, v) -> escape(k) + ": " + toCompactString(v), ",\n");
+            "{\n" + String.indent(tab, contents) + "}"
+        case JsonArray(list) =>
+            let contents = list |> List.joinWith(toCompactString, ",\n");
+            "[\n" + String.indent(tab, contents) + "]"
+        case JsonString(s) => escape(s)
+        case JsonInt(i) => "${i}"
+        case JsonFloat(f) => "${f}"
+        case JsonBool(b) => "${b}"
+        case JsonNull => "null"
+    }
+
     def escape(s: String): String = {
         let contents = s
             |> String.toList
