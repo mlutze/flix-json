@@ -19,7 +19,7 @@ namespace Json { // TODO rename
   pub def parse(obj: String): Option[JsonElement] = {
     let in = String.toList(obj);
     let* (_, tail) = whitespace(in);
-    let* (o, tail1) = object(tail);
+    let* (o, tail1) = object_(tail);
     match tail1 {
       case Nil => Some(o)
       case _ :: _ => None
@@ -34,7 +34,7 @@ namespace Json { // TODO rename
     case _ => Some((), in)
   }
 
-  def object(in: List[Char]): ParseMonad[JsonElement] = {
+  def object_(in: List[Char]): ParseMonad[JsonElement] = {
     let* (_, tail) = require('{', in);
     let* (_, tail1) = whitespace(tail);
     let* (keyVals, tail2) = keyVals(tail1);
@@ -99,7 +99,7 @@ namespace Json { // TODO rename
   }
 
   def value(in: List[Char]): ParseMonad[JsonElement] = match in {
-    case '{' :: _ => object(in)
+    case '{' :: _ => object_(in)
     case '[' :: _ => array(in)
     case '\"' :: _ => stringValue(in)
     case 't' :: 'r' :: 'u' :: 'e' :: tail => Some(JsonBool(true), tail)
@@ -126,12 +126,10 @@ namespace Json { // TODO rename
     Some(str, tail3)
   }
 
-  def listToString(list: List[Char]): String = {
-    {
-      let sb = StringBuilder.new();
+  def listToString(list: List[Char]): String = region r {
+      let sb = StringBuilder.new(r);
       list |> List.foreach(c -> StringBuilder.append!(c, sb));
       StringBuilder.toString(sb)
-    } as & Pure
   }
 
   def stringContents(in: List[Char]): ParseMonad[List[Char]] = match in {
@@ -184,20 +182,20 @@ namespace Json { // TODO rename
   }
 
   def hexToInt(hex: String): Option[Int32] = {
-    import static java.lang.Integer.parseInt(String, Int32): Int32 & Pure;
+    import static java.lang.Integer.parseInt(String, Int32): Int32 & Impure;
     try {
       Some(parseInt(hex, 16))
     } catch {
       case _: ##java.lang.NumberFormatException => None
-    }
+    } as \ {}
   }
 
   def number(in: List[Char]): ParseMonad[JsonElement] = match in {
     case c :: tail if isNumberChar(c) =>
       let* (chars, tail1) = numberTail(tail);
       let string = listToString(c :: chars);
-      let toIntOpt = Int32.fromString(string) |> Result.map(JsonInt) |> Result.toOption;
-      let toFloatOpt = Float64.fromString(string) |> Result.map(JsonFloat) |> Result.toOption;
+      let toIntOpt = Int32.fromString(string) |> Option.map(JsonInt);
+      let toFloatOpt = Float64.fromString(string) |> Option.map(JsonFloat);
       toIntOpt |> Option.withDefault(default = toFloatOpt) |> Option.map(val -> (val, tail1))
     case _ => None
   }
