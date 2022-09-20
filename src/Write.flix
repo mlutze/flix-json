@@ -2,6 +2,9 @@ namespace Json/Write {
     use Json.JsonElement;
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonInt, JsonFloat, JsonBool, JsonNull}
 
+    ///
+    /// Returns the string corresponding to the given JSON object, written without extraneous space.
+    ///
     pub def toCompactString(json: JsonElement): String = match json {
         case JsonObject(map) =>
             let contents = map
@@ -17,6 +20,9 @@ namespace Json/Write {
         case JsonNull => "null"
     }
 
+    ///
+    /// Returns the string corresponding to the given JSON object, using `tab` spaces for indentation.
+    ///
     pub def toPrettyString(tab: Int32, json: JsonElement): String = match json {
         case JsonObject(map) =>
             let contents = map
