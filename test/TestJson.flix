@@ -1,5 +1,5 @@
 namespace TestMain {
-  use Json.parse;
+  use Json/Parse.parse;
   use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonFloat, JsonInt, JsonBool, JsonNull};
   
   @test
