@@ -1,7 +1,8 @@
 namespace Json/Parse {
-    use Option.flatMap;
+    import java.math.BigDecimal
+    use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     use Json.JsonElement;
-    use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonInt, JsonFloat, JsonBool, JsonNull}
+    use Option.flatMap;
 
     // Each main rule must start with a key character and consume trailing whitespace
 
@@ -190,9 +191,9 @@ namespace Json/Parse {
         case c :: tail if isNumberChar(c) =>
             let* (chars, tail1) = numberTail(tail);
             let string = listToString(c :: chars);
-            let toIntOpt = Int32.fromString(string) |> Option.map(JsonInt);
-            let toFloatOpt = Float64.fromString(string) |> Option.map(JsonFloat);
-            toIntOpt |> Option.withDefault(default = toFloatOpt) |> Option.map(val -> (val, tail1))
+            let* bigDec = parseBigDecimal(string);
+            let number = JsonNumber(bigDec);
+            Some(number, tail1)
         case _ => None
     }
 
@@ -203,5 +204,14 @@ namespace Json/Parse {
             let* (chars, tail1) = numberTail(tail);
             Some(c :: chars, tail1)
         case _ => Some(Nil, in)
+    }
+
+    def parseBigDecimal(s: String): Option[BigDecimal] = {
+        import new java.math.BigDecimal(String): BigDecimal \ {} as mkBigDecimal;
+        try {
+            Some(mkBigDecimal(s))
+        } catch {
+            case _: ##java.lang.NumberFormatException => None
+        }
     }
 }
