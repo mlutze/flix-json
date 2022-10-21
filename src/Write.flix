@@ -1,6 +1,7 @@
 namespace Json/Write {
-    use Json.JsonElement;
-    use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonInt, JsonFloat, JsonBool, JsonNull}
+    import java.math.BigDecimal
+    use Json.JsonElement
+    use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
     ///
     /// Returns the string corresponding to the given JSON object, written without extraneous space.
@@ -14,8 +15,7 @@ namespace Json/Write {
             let contents = list |> List.joinWith(toCompactString, ",");
             "[" + contents + "]"
         case JsonString(s) => escape(s)
-        case JsonInt(i) => "${i}"
-        case JsonFloat(f) => "${f}"
+        case JsonNumber(n) => bigDecimalToString(n)
         case JsonBool(b) => "${b}"
         case JsonNull => "null"
     }
@@ -32,8 +32,7 @@ namespace Json/Write {
             let contents = list |> List.joinWith(toCompactString, ",\n");
             "[\n" + String.indent(tab, contents) + "]"
         case JsonString(s) => escape(s)
-        case JsonInt(i) => "${i}"
-        case JsonFloat(f) => "${f}"
+        case JsonNumber(n) => bigDecimalToString(n)
         case JsonBool(b) => "${b}"
         case JsonNull => "null"
     }
@@ -87,5 +86,10 @@ namespace Json/Write {
         '\u001D' => "\\u001D",
         '\u001E' => "\\u001E",
         '\u001F' => "\\u001F"
+    }
+
+    def bigDecimalToString(x: BigDecimal): String = {
+        import java.math.BigDecimal.toString(): String \ {};
+        toString(x)
     }
 }
