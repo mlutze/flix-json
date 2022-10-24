@@ -151,6 +151,16 @@ namespace Json {
         }
     }
 
+    instance Jsonable[String] {
+        pub def toJson(x: String): JsonElement = JsonString(x)
+
+        pub def fromJson(x: JsonElement): Option[String] = match x {
+            case JsonString(y) => Some(y)
+            case _ => None
+        }
+
+    }
+
     instance Jsonable[List[a]] with Jsonable[a] {
         pub def toJson(x: List[a]): JsonElement = {
             let elems = List.map(Json/Jsonable.toJson, x);
