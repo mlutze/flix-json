@@ -2,7 +2,7 @@ namespace TestJsonable {
     use Json.Jsonable
     use Json/Jsonable.fromJson
     use Json/Jsonable.toJson
-    use Json.JsonElement.JsonBool
+    use Json.JsonElement.JsonString
 
     @test
     pub def testBool01(): Bool = testRoundTrip(true)
@@ -48,6 +48,15 @@ namespace TestJsonable {
 
     @test
     pub def testMap02(): Bool = testRoundTrip(Map#{"hi there" => Map#{"bye there" => 43i8}, "blah?" => Map#{"blah" => 99i8}})
+
+    @test
+    pub def testOption01(): Bool = testRoundTrip(None: Option[String])
+
+    @test
+    pub def testOption02(): Bool = testRoundTrip(Some("hello"))
+
+    @test
+    pub def testJsonElement01(): Bool = testRoundTrip(JsonString("howdy"))
 
     def testRoundTrip(x: a): Bool with Jsonable[a], Eq[a] = {
         x |> toJson |> fromJson == Some(x)

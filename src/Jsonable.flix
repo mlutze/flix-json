@@ -211,4 +211,10 @@ namespace Json {
             }
         }
     }
+
+    instance Jsonable[JsonElement] {
+        pub def toJson(x: JsonElement): JsonElement = x
+
+        pub def fromJson(x: JsonElement): Option[JsonElement] = Some(x)
+    }
 }
