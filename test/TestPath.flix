@@ -57,6 +57,6 @@ namespace TestPath {
     @test
     pub def testPathToString(): Bool = {
         let path = Root `atIndex` 5 `atKey` "hello" `atKey` "world" `atIndex` 42;
-        "${path}" == "$[5].hello.world[42]"
+        "${path}" == "$[5][\"hello\"][\"world\"][42]"
     }
 }

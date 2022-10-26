@@ -4,6 +4,7 @@ namespace Json {
         use Json.JsonElement.JsonArray;
         use Json.JsonElement.JsonObject;
         use Json.JsonElement;
+        use Json/Utils.escape;
 
         ///
         /// Represents a JSON Path
@@ -18,7 +19,7 @@ namespace Json {
             pub def toString(x: Path): String = match x {
                 case Root => "$"
                 case AtIndex(base, i) => "${base}[${i}]"
-                case AtKey(base, key) => "${base}.${key}"
+                case AtKey(base, key) => "${base}[${escape(key)}]"
             }
         }
 
