@@ -1,7 +1,7 @@
 namespace Json/Utils {
 
     ///
-    /// Converts the given Sting into a JSON string, including surrounding quotes.
+    /// Converts the given string into a JSON string, including surrounding quotes.
     ///
     pub def escape(s: String): String = {
         let contents = s
