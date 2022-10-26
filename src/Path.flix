@@ -1,0 +1,60 @@
+namespace Json {
+
+    ///
+    /// Represents a JSON Path
+    ///
+    pub enum Path with Eq {
+        case Root
+        case AtIndex(Path, Int32)
+        case AtKey(Path, String)
+    }
+
+    instance ToString[Path] {
+        pub def toString(x: Path): String = match x {
+            case Root => "$"
+            case AtIndex(base, i) => "${base}[${i}]"
+            case AtKey(base, key) => "${base}.${key}"
+        }
+    }
+
+    ///
+    /// Appends an index to the path.
+    ///
+    pub def atIndex(p: Path, i: Int32): Path = AtIndex(p, i)
+
+    ///
+    /// Appends a key to the path.
+    ///
+    pub def atKey(p: Path, k: String): Path = AtKey(p, k)
+
+    ///
+    /// Retrieves the element at the given JSON path.
+    ///
+    pub def apply(p: Path, json: JsonElement): Option[JsonElement] = {
+        use Option.flatMap;
+        match p {
+            case Root => Some(json)
+            case AtIndex(root, i) =>
+                let* next = apply(root, json);
+                match next {
+                    case JsonArray(l) => nth(i, l)
+                    case _ => None
+                }
+            case (AtKey(root, key)) =>
+                let* next = apply(root, json);
+                match next {
+                    case JsonObject(m) => Map.get(key, m)
+                    case _ => None
+                }
+        }
+    }
+
+    ///
+    /// Returns the nth element in the given list.
+    ///
+    def nth(n: Int32, l: List[a]): Option[a] = match (n, l) {
+        case (0, hd :: _) => Some(hd)
+        case (_, _ :: tl) if n > 0 => nth(n - 1, tl)
+        case _ => None
+    }
+}
