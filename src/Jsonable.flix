@@ -1,6 +1,4 @@
 namespace Json {
-    import java.math.BigDecimal
-
     pub class Jsonable[a] {
         pub def toJson(x: a): JsonElement
         pub def fromJson(x: JsonElement): Option[a]

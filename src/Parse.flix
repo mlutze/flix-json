@@ -1,5 +1,4 @@
 namespace Json/Parse {
-    import java.math.BigDecimal
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     use Json.JsonElement;
     use Option.flatMap;
@@ -191,7 +190,7 @@ namespace Json/Parse {
         case c :: tail if isNumberChar(c) =>
             let* (chars, tail1) = numberTail(tail);
             let string = listToString(c :: chars);
-            let* bigDec = parseBigDecimal(string);
+            let* bigDec = BigDecimal.fromString(string);
             let number = JsonNumber(bigDec);
             Some(number, tail1)
         case _ => None
@@ -206,12 +205,4 @@ namespace Json/Parse {
         case _ => Some(Nil, in)
     }
 
-    def parseBigDecimal(s: String): Option[BigDecimal] = {
-        import new java.math.BigDecimal(String): BigDecimal \ {} as mkBigDecimal;
-        try {
-            Some(mkBigDecimal(s))
-        } catch {
-            case _: ##java.lang.NumberFormatException => None
-        }
-    }
 }

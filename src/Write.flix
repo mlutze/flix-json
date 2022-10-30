@@ -1,5 +1,4 @@
 namespace Json/Write {
-    import java.math.BigDecimal
     use Json.JsonElement
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     use Json/Utils.escape
@@ -16,7 +15,7 @@ namespace Json/Write {
             let contents = list |> List.joinWith(toCompactString, ",");
             "[" + contents + "]"
         case JsonString(s) => escape(s)
-        case JsonNumber(n) => bigDecimalToString(n)
+        case JsonNumber(n) => "${n}"
         case JsonBool(b) => "${b}"
         case JsonNull => "null"
     }
@@ -35,13 +34,8 @@ namespace Json/Write {
             let contents = list |> List.joinWith(toPrettyString(tab), ",\n");
             "[\n" + String.indent(tab, contents) + "]"
         case JsonString(s) => escape(s)
-        case JsonNumber(n) => bigDecimalToString(n)
+        case JsonNumber(n) => "${n}"
         case JsonBool(b) => "${b}"
         case JsonNull => "null"
-    }
-
-    def bigDecimalToString(x: BigDecimal): String = {
-        import java.math.BigDecimal.toString(): String \ {};
-        toString(x)
     }
 }
