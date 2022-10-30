@@ -1,5 +1,4 @@
 namespace TestParse {
-    import java.math.BigDecimal
     use Json/Parse.parse
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     
@@ -35,13 +34,11 @@ namespace TestParse {
 
     @test
     def testSingletonInt01(): Bool = {
-        import static java.math.BigDecimal.valueOf(Int64): BigDecimal \ {};
-        parse("{\"key\": 1}") == Some(JsonObject(Map#{"key" => JsonNumber(valueOf(1i64))}))
+        parse("{\"key\": 1}") == Some(JsonObject(Map#{"key" => JsonNumber(1.0ff)}))
     }
 
     @test
     def testSingletonFloat01(): Bool = {
-        import static java.math.BigDecimal.valueOf(Float64): BigDecimal \ {};
-        parse("{\"key\": 1.0}") == Some(JsonObject(Map#{"key" => JsonNumber(valueOf(1.0))}))
+        parse("{\"key\": 1.0}") == Some(JsonObject(Map#{"key" => JsonNumber(1.0ff)}))
     }
 }

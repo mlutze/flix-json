@@ -1,6 +1,4 @@
 namespace Json {
-    import java.math.BigDecimal
-
     pub class Jsonable[a] {
         pub def toJson(x: a): JsonElement
         pub def fromJson(x: JsonElement): Option[a]
@@ -26,127 +24,112 @@ namespace Json {
 
     instance Jsonable[Float32] {
         pub def toJson(x: Float32): JsonElement = {
-            import static java.math.BigDecimal.valueOf(Float64): BigDecimal \ {};
-            let y = valueOf(Float32.toFloat64(x));
-            JsonNumber(y)
+            match Float32.tryToBigDecimal(x) {
+                case Some(num) => JsonNumber(num)
+                case None =>
+                    if (Float32.isInfinite(x)) {
+                        if (x > 0.0f32) {
+                            JsonString("Infinity")
+                        } else {
+                            JsonString("-Infinity")
+                        }
+                    } else if (Float32.isNan(x)) {
+                        JsonString("NaN")
+                    } else {
+                        bug!("invalid Float32: ${x}")
+                    }
+            }
         }
     
         pub def fromJson(x: JsonElement): Option[Float32] = match x {
-            case JsonNumber(y) =>
-                import java.math.BigDecimal.floatValue(): Float32 \ {};
-                Some(floatValue(y))
+            case JsonNumber(y) => BigDecimal.tryToFloat32(y)
+            case JsonString("Infinity") => Some(Float32.positiveInfinity())
+            case JsonString("-Infinity") => Some(Float32.negativeInfinity())
+            case JsonString("NaN") => Some(Float32.nan())
             case _ => None
         }
     }
 
     instance Jsonable[Float64] {
-    
         pub def toJson(x: Float64): JsonElement = {
-            import static java.math.BigDecimal.valueOf(Float64): BigDecimal \ {};
-            let y = valueOf(x);
-            JsonNumber(y)
+            match Float64.tryToBigDecimal(x) {
+                case Some(num) => JsonNumber(num)
+                case None =>
+                    if (Float64.isInfinite(x)) {
+                        if (x > 0.0f64) {
+                            JsonString("Infinity")
+                        } else {
+                            JsonString("-Infinity")
+                        }
+                    } else if (Float64.isNan(x)) {
+                        JsonString("NaN")
+                    } else {
+                        bug!("invalid Float64: ${x}")
+                    }
+            }
         }
     
         pub def fromJson(x: JsonElement): Option[Float64] = match x {
-            case JsonNumber(y) =>
-                import java.math.BigDecimal.doubleValue(): Float64 \ {};
-                Some(doubleValue(y))
+            case JsonNumber(y) => BigDecimal.tryToFloat64(y)
+            case JsonString("Infinity") => Some(Float64.positiveInfinity())
+            case JsonString("-Infinity") => Some(Float64.negativeInfinity())
+            case JsonString("NaN") => Some(Float64.nan())
             case _ => None
         }
-    
     }
 
     instance Jsonable[Int8] {
         pub def toJson(x: Int8): JsonElement = {
-            import static java.math.BigDecimal.valueOf(Int64): BigDecimal \ {};
-            let y = valueOf(Int8.toInt64(x));
-            JsonNumber(y)
+            JsonNumber(Int8.toBigDecimal(x))
         }
     
         pub def fromJson(x: JsonElement): Option[Int8] = match x {
-            case JsonNumber(y) =>
-                import java.math.BigDecimal.byteValueExact(): Int8 \ {};
-                try {
-                    Some(byteValueExact(y))
-                } catch {
-                    case _: ##java.lang.ArithmeticException => None
-                }
+            case JsonNumber(y) => BigDecimal.tryToInt8(y)
             case _ => None
         }
     }
     
     instance Jsonable[Int16] {
         pub def toJson(x: Int16): JsonElement = {
-            import static java.math.BigDecimal.valueOf(Int64): BigDecimal \ {};
-            let y = valueOf(Int16.toInt64(x));
-            JsonNumber(y)
+            JsonNumber(Int16.toBigDecimal(x))
         }
     
         pub def fromJson(x: JsonElement): Option[Int16] = match x {
-            case JsonNumber(y) =>
-                import java.math.BigDecimal.shortValueExact(): Int16 \ {};
-                try {
-                    Some(shortValueExact(y))
-                } catch {
-                    case _: ##java.lang.ArithmeticException => None
-                }
+            case JsonNumber(y) => BigDecimal.tryToInt16(y)
             case _ => None
         }
     }
 
     instance Jsonable[Int32] {
         pub def toJson(x: Int32): JsonElement = {
-            import static java.math.BigDecimal.valueOf(Int64): BigDecimal \ {};
-            let y = valueOf(Int32.toInt64(x));
-            JsonNumber(y)
+            JsonNumber(Int32.toBigDecimal(x))
         }
     
         pub def fromJson(x: JsonElement): Option[Int32] = match x {
-            case JsonNumber(y) =>
-                import java.math.BigDecimal.intValueExact(): Int32 \ {};
-                try {
-                    Some(intValueExact(y))
-                } catch {
-                    case _: ##java.lang.ArithmeticException => None
-                }
+            case JsonNumber(y) => BigDecimal.tryToInt32(y)
             case _ => None
         }
     }
     
     instance Jsonable[Int64] {
         pub def toJson(x: Int64): JsonElement = {
-            import static java.math.BigDecimal.valueOf(Int64): BigDecimal \ {};
-            let y = valueOf(x);
-            JsonNumber(y)
+            JsonNumber(Int64.toBigDecimal(x))
         }
     
         pub def fromJson(x: JsonElement): Option[Int64] = match x {
-            case JsonNumber(y) =>
-                import java.math.BigDecimal.longValueExact(): Int64 \ {};
-                try {
-                    Some(longValueExact(y))
-                } catch {
-                    case _: ##java.lang.ArithmeticException => None
-                }
+            case JsonNumber(y) => BigDecimal.tryToInt64(y)
             case _ => None
         }
     }
 
     instance Jsonable[BigInt] {
         pub def toJson(x: BigInt): JsonElement = {
-            import new java.math.BigDecimal(BigInt): BigDecimal \ {} as valueOf;
-            let y = valueOf(x);
-            JsonNumber(y)
+            JsonNumber(BigInt.toBigDecimal(x))
         }
     
         pub def fromJson(x: JsonElement): Option[BigInt] = match x {
-            case JsonNumber(y) =>
-                import java.math.BigDecimal.toBigIntegerExact(): BigInt \ {};
-                try {
-                    Some(toBigIntegerExact(y))
-                } catch {
-                    case _: ##java.lang.ArithmeticException => None
-                }
+            // TODO needs to change to tryToBigInt
+            case JsonNumber(y) => Some(BigDecimal.toBigInt(y))
             case _ => None
         }
     }

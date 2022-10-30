@@ -17,7 +17,33 @@ namespace TestJsonable {
     pub def testFloat32_01(): Bool = testRoundTrip(0.123f32)
 
     @test
+    pub def testFloat32_02(): Bool = testRoundTrip(Float32.positiveInfinity())
+
+    @test
+    pub def testFloat32_03(): Bool = testRoundTrip(Float32.negativeInfinity())
+
+    // we don't use == for NaN since == is weird with it
+    @test
+    pub def testFloat32_04(): Bool = match (Float32.nan() |> toJson |> fromJson) {
+        case Some(x) => Float32.isNan(x)
+        case None => false
+    }
+
+    @test
     pub def testFloat64_01(): Bool = testRoundTrip(0.123f64)
+
+    @test
+    pub def testFloat64_02(): Bool = testRoundTrip(Float64.positiveInfinity())
+
+    @test
+    pub def testFloat64_03(): Bool = testRoundTrip(Float64.negativeInfinity())
+
+    // we don't use == for NaN since == is weird with it
+    @test
+    pub def testFloat64_04(): Bool = match (Float64.nan() |> toJson |> fromJson) {
+        case Some(x) => Float64.isNan(x)
+        case None => false
+    }
 
     @test
     pub def testInt8_01(): Bool = testRoundTrip(123i8)

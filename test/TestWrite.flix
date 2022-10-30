@@ -1,6 +1,5 @@
 namespace TestWrite {
     namespace Compact {
-        import java.math.BigDecimal
         use Json/Write.toCompactString
         use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
@@ -33,19 +32,16 @@ namespace TestWrite {
 
         @test
         def testSingletonInt01(): Bool = {
-            import static java.math.BigDecimal.valueOf(Int64): BigDecimal \ {};
-            toCompactString(JsonObject(Map#{"key" => JsonNumber(valueOf(1i64))})) == "{\"key\":1}"
+            toCompactString(JsonObject(Map#{"key" => JsonNumber(Int32.toBigDecimal(1))})) == "{\"key\":1}"
         }
 
         @test
         def testSingletonFloat01(): Bool = {
-            import static java.math.BigDecimal.valueOf(Float64): BigDecimal \ {};
-            toCompactString(JsonObject(Map#{"key" => JsonNumber(valueOf(1.0))})) == "{\"key\":1.0}"
+            toCompactString(JsonObject(Map#{"key" => JsonNumber(1.0ff)})) == "{\"key\":1.0}"
         }
     }
 
     namespace Pretty {
-        import java.math.BigDecimal
         use Json/Write.toPrettyString
         use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
@@ -78,14 +74,12 @@ namespace TestWrite {
 
         @test
         def testSingletonInt01(): Bool = {
-            import static java.math.BigDecimal.valueOf(Int64): BigDecimal \ {};
-            toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(valueOf(1i64))})) == "{\n  \"key\": 1\n}"
+            toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(Int32.toBigDecimal(1))})) == "{\n  \"key\": 1\n}"
         }
 
         @test
         def testSingletonFloat01(): Bool = {
-            import static java.math.BigDecimal.valueOf(Float64): BigDecimal \ {};
-            toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(valueOf(1.0))})) == "{\n  \"key\": 1.0\n}"
+            toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(1.0ff)})) == "{\n  \"key\": 1.0\n}"
         }
     }
 }
