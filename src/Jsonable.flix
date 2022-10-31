@@ -9,6 +9,13 @@ namespace Json {
         pub def toJson(x: a): JsonElement
         pub def fromJsonAt(p: Path, x: JsonElement): Result[a, JsonError]
         pub def fromJson(x: JsonElement): Result[a, JsonError] = Json/Jsonable.fromJsonAt(Path.Root, x)
+        pub def fromNullableJsonAt(p: Path, x: JsonElement): Result[Option[a], JsonError] = match x {
+            case JsonNull => Ok(None)
+            case y => Json/Jsonable.fromJsonAt(p, y)
+                |> Result.mapErr(match JsonError(path, expected) -> JsonError(path, expected + " or null"))
+                |> Result.map(Some)
+        }
+        pub def fromNullableJson(x: JsonElement): Result[Option[a], JsonError] = Json/Jsonable.fromNullableJsonAt(Path.Root, x)
     }
 
     instance Jsonable[Bool] {

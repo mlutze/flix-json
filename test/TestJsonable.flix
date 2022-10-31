@@ -3,6 +3,7 @@ namespace TestJsonable {
     use Json/Jsonable.fromJson
     use Json/Jsonable.toJson
     use Json.JsonElement.JsonString
+    use Json.JsonElement.JsonNull
 
     @test
     pub def testBool01(): Bool = testRoundTrip(true)
@@ -83,6 +84,12 @@ namespace TestJsonable {
 
     @test
     pub def testJsonElement01(): Bool = testRoundTrip(JsonString("howdy"))
+
+    @test
+    pub def testNullable01(): Bool = Json/Jsonable.fromNullableJson(JsonNull) == Ok(None: Option[String])
+
+    @test
+    pub def testNullable02(): Bool = Json/Jsonable.fromNullableJson(JsonString("hello")) == Ok(Some("hello"))
 
     def testRoundTrip(x: a): Bool with Jsonable[a], Eq[a] = {
         x |> toJson |> fromJson == Ok(x)
