@@ -1,24 +1,31 @@
 namespace Json {
+    use Json/Path.Path;
+    use Json/Path.atIndex;
+    use Json/Path.atKey;
+
+    pub enum JsonError(Path, String) with Eq
+
     pub class Jsonable[a] {
         pub def toJson(x: a): JsonElement
-        pub def fromJson(x: JsonElement): Option[a]
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[a, JsonError]
+        pub def fromJson(x: JsonElement): Result[a, JsonError] = Json/Jsonable.fromJsonAt(Path.Root, x)
     }
 
     instance Jsonable[Bool] {
         pub def toJson(x: Bool): JsonElement = JsonBool(x)
 
-        pub def fromJson(x: JsonElement): Option[Bool] = match x {
-            case JsonBool(y) => Some(y)
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Bool, JsonError] = match x {
+            case JsonBool(y) => Ok(y)
+            case _ => Err(JsonError(p, "boolean value"))
         }
     }
 
     instance Jsonable[Char] {
         pub def toJson(x: Char): JsonElement = JsonString(Char.toString(x))
     
-        pub def fromJson(x: JsonElement): Option[Char] = match x {
-            case JsonString(y) if String.length(y) > 0 => Some(String.charAt(0, y))
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Char, JsonError] = match x {
+            case JsonString(y) if String.length(y) > 0 => Ok(String.charAt(0, y))
+            case _ => Err(JsonError(p, "singleton string"))
         }
     }
 
@@ -41,12 +48,12 @@ namespace Json {
             }
         }
     
-        pub def fromJson(x: JsonElement): Option[Float32] = match x {
-            case JsonNumber(y) => BigDecimal.tryToFloat32(y)
-            case JsonString("Infinity") => Some(Float32.positiveInfinity())
-            case JsonString("-Infinity") => Some(Float32.negativeInfinity())
-            case JsonString("NaN") => Some(Float32.nan())
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Float32, JsonError] = match x {
+            case JsonNumber(y) => BigDecimal.tryToFloat32(y) |> Option.toOk(JsonError(p, "floating-point number or \"-Infinity\" or \"Infinity\" or \"NaN\""))
+            case JsonString("Infinity") => Ok(Float32.positiveInfinity())
+            case JsonString("-Infinity") => Ok(Float32.negativeInfinity())
+            case JsonString("NaN") => Ok(Float32.nan())
+            case _ => Err(JsonError(p, "floating-point number or \"-Infinity\" or \"Infinity\" or \"NaN\""))
         }
     }
 
@@ -69,12 +76,12 @@ namespace Json {
             }
         }
     
-        pub def fromJson(x: JsonElement): Option[Float64] = match x {
-            case JsonNumber(y) => BigDecimal.tryToFloat64(y)
-            case JsonString("Infinity") => Some(Float64.positiveInfinity())
-            case JsonString("-Infinity") => Some(Float64.negativeInfinity())
-            case JsonString("NaN") => Some(Float64.nan())
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Float64, JsonError] = match x {
+            case JsonNumber(y) => BigDecimal.tryToFloat64(y) |> Option.toOk(JsonError(p, "floating-point number or \"-Infinity\" or \"Infinity\" or \"NaN\""))
+            case JsonString("Infinity") => Ok(Float64.positiveInfinity())
+            case JsonString("-Infinity") => Ok(Float64.negativeInfinity())
+            case JsonString("NaN") => Ok(Float64.nan())
+            case _ => Err(JsonError(p, "floating-point number or \"-Infinity\" or \"Infinity\" or \"NaN\""))
         }
     }
 
@@ -83,9 +90,9 @@ namespace Json {
             JsonNumber(Int8.toBigDecimal(x))
         }
     
-        pub def fromJson(x: JsonElement): Option[Int8] = match x {
-            case JsonNumber(y) => BigDecimal.tryToInt8(y)
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Int8, JsonError] = match x {
+            case JsonNumber(y) => BigDecimal.tryToInt8(y) |> Option.toOk(JsonError(p, "8-bit integer"))
+            case _ => Err(JsonError(p, "8-bit integer"))
         }
     }
     
@@ -94,9 +101,9 @@ namespace Json {
             JsonNumber(Int16.toBigDecimal(x))
         }
     
-        pub def fromJson(x: JsonElement): Option[Int16] = match x {
-            case JsonNumber(y) => BigDecimal.tryToInt16(y)
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Int16, JsonError] = match x {
+            case JsonNumber(y) => BigDecimal.tryToInt16(y) |> Option.toOk(JsonError(p, "16-bit integer"))
+            case _ => Err(JsonError(p, "16-bit integer"))
         }
     }
 
@@ -105,9 +112,9 @@ namespace Json {
             JsonNumber(Int32.toBigDecimal(x))
         }
     
-        pub def fromJson(x: JsonElement): Option[Int32] = match x {
-            case JsonNumber(y) => BigDecimal.tryToInt32(y)
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Int32, JsonError] = match x {
+            case JsonNumber(y) => BigDecimal.tryToInt32(y) |> Option.toOk(JsonError(p, "32-bit integer"))
+            case _ => Err(JsonError(p, "32-bit integer"))
         }
     }
     
@@ -116,9 +123,9 @@ namespace Json {
             JsonNumber(Int64.toBigDecimal(x))
         }
     
-        pub def fromJson(x: JsonElement): Option[Int64] = match x {
-            case JsonNumber(y) => BigDecimal.tryToInt64(y)
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Int64, JsonError] = match x {
+            case JsonNumber(y) => BigDecimal.tryToInt64(y) |> Option.toOk(JsonError(p, "64-bit integer"))
+            case _ => Err(JsonError(p, "64-bit integer"))
         }
     }
 
@@ -127,19 +134,18 @@ namespace Json {
             JsonNumber(BigInt.toBigDecimal(x))
         }
     
-        pub def fromJson(x: JsonElement): Option[BigInt] = match x {
-            // TODO needs to change to tryToBigInt
-            case JsonNumber(y) => Some(BigDecimal.toBigInt(y))
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[BigInt, JsonError] = match x {
+            case JsonNumber(y) => Ok(BigDecimal.toBigInt(y))
+            case _ => Err(JsonError(p, "integer"))
         }
     }
 
     instance Jsonable[String] {
         pub def toJson(x: String): JsonElement = JsonString(x)
 
-        pub def fromJson(x: JsonElement): Option[String] = match x {
-            case JsonString(y) => Some(y)
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[String, JsonError] = match x {
+            case JsonString(y) => Ok(y)
+            case _ => Err(JsonError(p, "string"))
         }
 
     }
@@ -150,9 +156,9 @@ namespace Json {
             JsonArray(elems)
         }
 
-        pub def fromJson(x: JsonElement): Option[List[a]] = match x {
-            case JsonArray(l) => Option.traverse(Json/Jsonable.fromJson, l)
-            case _ => None
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[List[a], JsonError] = match x {
+            case JsonArray(l) => l |> List.zipWithIndex |> Result.traverse(match (val, i) -> Json/Jsonable.fromJsonAt(p `atIndex` i, val))
+            case _ => Err(JsonError(p, "array"))
         }
     }
 
@@ -165,17 +171,17 @@ namespace Json {
             JsonObject(map)
         }
 
-        pub def fromJson(x: JsonElement): Option[Map[k, v]] = match x {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Map[k, v], JsonError] = match x {
             case JsonObject(m0) =>
-                use Option.flatMap;
+                use Result.flatMap;
                 let l0 = Map.toList(m0);
-                let* l = l0 |> Option.traverse(match (k0, v0) -> 
-                    let* k = FromString.fromString(k0);
-                    let* v = Json/Jsonable.fromJson(v0);
-                    Some(k, v)
+                let* l = l0 |> Result.traverse(match (k0, v0) -> 
+                    let* k = FromString.fromString(k0) |> Option.toOk(JsonError(p `atKey` k0, "valid key"));
+                    let* v = Json/Jsonable.fromJsonAt(p `atKey` k0, v0);
+                    Ok(k, v)
                 );
-                Some(List.toMap(l))
-            case _ => None
+                Ok(List.toMap(l))
+            case _ => Err(JsonError(p, "object"))
         }
     }
 
@@ -185,12 +191,12 @@ namespace Json {
             case None => JsonNull
         }
     
-        pub def fromJson(x: JsonElement): Option[Option[a]] = match x {
-            case JsonNull => Some(None)
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Option[a], JsonError] = match x {
+            case JsonNull => Ok(None)
             case json => {
-                use Option.flatMap;
-                let* y = Json/Jsonable.fromJson(json);
-                Some(Some(y))
+                use Result.flatMap;
+                let* y = Json/Jsonable.fromJsonAt(p, json);
+                Ok(Some(y))
             }
         }
     }
@@ -198,6 +204,6 @@ namespace Json {
     instance Jsonable[JsonElement] {
         pub def toJson(x: JsonElement): JsonElement = x
 
-        pub def fromJson(x: JsonElement): Option[JsonElement] = Some(x)
+        pub def fromJsonAt(_: Path, x: JsonElement): Result[JsonElement, JsonError] = Ok(x)
     }
 }
