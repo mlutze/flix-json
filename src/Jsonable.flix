@@ -194,17 +194,17 @@ namespace Json {
 
     instance Jsonable[Option[a]] with Jsonable[a] {
         pub def toJson(x: Option[a]): JsonElement = match x {
-            case Some(y) => Json/Jsonable.toJson(y)
-            case None => JsonNull
+            case Some(y) => JsonArray(Json/Jsonable.toJson(y) :: Nil)
+            case None => JsonArray(Nil)
         }
     
         pub def fromJsonAt(p: Path, x: JsonElement): Result[Option[a], JsonError] = match x {
-            case JsonNull => Ok(None)
-            case json => {
+            case JsonArray(Nil) => Ok(None)
+            case JsonArray(y0 :: Nil) =>
                 use Result.flatMap;
-                let* y = Json/Jsonable.fromJsonAt(p, json);
+                let* y = Json/Jsonable.fromJsonAt(p, y0);
                 Ok(Some(y))
-            }
+            case _ => Err(JsonError(p, "empty array or singleton array"))
         }
     }
 
