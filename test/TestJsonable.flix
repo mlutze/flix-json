@@ -3,6 +3,7 @@ namespace TestJsonable {
     use Json/Jsonable.fromJson
     use Json/Jsonable.toJson
     use Json.JsonElement.JsonString
+    use Json.JsonElement.JsonNull
 
     @test
     pub def testBool01(): Bool = testRoundTrip(true)
@@ -25,8 +26,8 @@ namespace TestJsonable {
     // we don't use == for NaN since == is weird with it
     @test
     pub def testFloat32_04(): Bool = match (Float32.nan() |> toJson |> fromJson) {
-        case Some(x) => Float32.isNan(x)
-        case None => false
+        case Ok(x) => Float32.isNan(x)
+        case Err(_) => false
     }
 
     @test
@@ -41,8 +42,8 @@ namespace TestJsonable {
     // we don't use == for NaN since == is weird with it
     @test
     pub def testFloat64_04(): Bool = match (Float64.nan() |> toJson |> fromJson) {
-        case Some(x) => Float64.isNan(x)
-        case None => false
+        case Ok(x) => Float64.isNan(x)
+        case Err(_) => false
     }
 
     @test
@@ -84,7 +85,13 @@ namespace TestJsonable {
     @test
     pub def testJsonElement01(): Bool = testRoundTrip(JsonString("howdy"))
 
+    @test
+    pub def testNullable01(): Bool = Json/Jsonable.fromNullableJson(JsonNull) == Ok(None: Option[String])
+
+    @test
+    pub def testNullable02(): Bool = Json/Jsonable.fromNullableJson(JsonString("hello")) == Ok(Some("hello"))
+
     def testRoundTrip(x: a): Bool with Jsonable[a], Eq[a] = {
-        x |> toJson |> fromJson == Some(x)
+        x |> toJson |> fromJson == Ok(x)
     }
 }
