@@ -124,7 +124,7 @@ namespace Json/Parse {
 
     def listToString(list: List[Char]): String = region r {
             let sb = StringBuilder.new(r);
-            list |> List.foreach(c -> StringBuilder.append!(c, sb));
+            list |> List.forEach(c -> StringBuilder.append!(c, sb));
             StringBuilder.toString(sb)
     }
 
