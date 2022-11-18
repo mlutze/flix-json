@@ -1,9 +1,12 @@
 namespace TestJsonable {
-    use Json.Jsonable
-    use Json/Jsonable.fromJson
-    use Json/Jsonable.toJson
-    use Json.JsonElement.JsonString
+    use Json.FromJson
     use Json.JsonElement.JsonNull
+    use Json.JsonElement.JsonString
+    use Json.Jsonable
+    use Json.ToJson
+    use Json/FromJson.fromJson
+    use Json/FromJson.fromNullableJson
+    use Json/ToJson.toJson
 
     @test
     pub def testBool01(): Bool = testRoundTrip(true)
@@ -15,13 +18,13 @@ namespace TestJsonable {
     pub def testChar01(): Bool = testRoundTrip('a')
 
     @test
-    pub def testFloat32_01(): Bool = testRoundTrip(0.123f32)
+    pub def testFloat32_01(): Bool = testLawlessRoundTrip(0.123f32)
 
     @test
-    pub def testFloat32_02(): Bool = testRoundTrip(Float32.positiveInfinity())
+    pub def testFloat32_02(): Bool = testLawlessRoundTrip(Float32.positiveInfinity())
 
     @test
-    pub def testFloat32_03(): Bool = testRoundTrip(Float32.negativeInfinity())
+    pub def testFloat32_03(): Bool = testLawlessRoundTrip(Float32.negativeInfinity())
 
     // we don't use == for NaN since == is weird with it
     @test
@@ -31,13 +34,13 @@ namespace TestJsonable {
     }
 
     @test
-    pub def testFloat64_01(): Bool = testRoundTrip(0.123f64)
+    pub def testFloat64_01(): Bool = testLawlessRoundTrip(0.123f64)
 
     @test
-    pub def testFloat64_02(): Bool = testRoundTrip(Float64.positiveInfinity())
+    pub def testFloat64_02(): Bool = testLawlessRoundTrip(Float64.positiveInfinity())
 
     @test
-    pub def testFloat64_03(): Bool = testRoundTrip(Float64.negativeInfinity())
+    pub def testFloat64_03(): Bool = testLawlessRoundTrip(Float64.negativeInfinity())
 
     // we don't use == for NaN since == is weird with it
     @test
@@ -86,12 +89,16 @@ namespace TestJsonable {
     pub def testJsonElement01(): Bool = testRoundTrip(JsonString("howdy"))
 
     @test
-    pub def testNullable01(): Bool = Json/Jsonable.fromNullableJson(JsonNull) == Ok(None: Option[String])
+    pub def testNullable01(): Bool = fromNullableJson(JsonNull) == Ok(None: Option[String])
 
     @test
-    pub def testNullable02(): Bool = Json/Jsonable.fromNullableJson(JsonString("hello")) == Ok(Some("hello"))
+    pub def testNullable02(): Bool = fromNullableJson(JsonString("hello")) == Ok(Some("hello"))
 
     def testRoundTrip(x: a): Bool with Jsonable[a], Eq[a] = {
+        x |> toJson |> fromJson == Ok(x)
+    }
+
+    def testLawlessRoundTrip(x: a): Bool with FromJson[a], ToJson[a], Eq[a] = {
         x |> toJson |> fromJson == Ok(x)
     }
 }
