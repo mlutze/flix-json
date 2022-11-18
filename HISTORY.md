@@ -16,3 +16,8 @@
 
 ### v0.6.0
    * Update syntax to Flix v0.34.0
+
+### v0.7.0
+   * Split the Jsonable class into FromJson and ToJson
+   * Provide more precise errors in FromJson and ToJson
+   * Improve JSON path interface
