@@ -21,15 +21,32 @@ namespace Json/Path {
         }
     }
 
+    sealed class Appendable[a] {
+        pub def append(x: a, p: Path): Path
+    }
+
+    instance Appendable[Int32] {
+        pub def append(x: Int32, p: Path): Path = atIndex(x, p)
+    }
+
+    instance Appendable[String] {
+        pub def append(x: String, p: Path): Path = atKey(x, p)
+    }
+
+    //
+    // Appends the index or key to the path.
+    //
+    pub def !!(p: Path, x: a): Path with Appendable[a] = Json/Path/Appendable.append(x, p)
+
     ///
     /// Appends an index to the path.
     ///
-    pub def atIndex(p: Path, i: Int32): Path = AtIndex(p, i)
+    pub def atIndex(i: Int32, p: Path): Path = AtIndex(p, i)
 
     ///
     /// Appends a key to the path.
     ///
-    pub def atKey(p: Path, k: String): Path = AtKey(p, k)
+    pub def atKey(k: String, p: Path): Path = AtKey(p, k)
 
     ///
     /// Retrieves the element at the given JSON path.

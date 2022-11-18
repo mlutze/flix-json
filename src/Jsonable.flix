@@ -1,7 +1,6 @@
 namespace Json {
     use Json/Path.Path;
-    use Json/Path.atIndex;
-    use Json/Path.atKey;
+    use Json/Path.{!!};
 
     pub enum JsonError(Path, Set[String]) with Eq
 
@@ -208,7 +207,7 @@ namespace Json {
 
     instance FromJson[List[a]] with FromJson[a] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[List[a], JsonError] = match x {
-            case JsonArray(l) => l |> List.zipWithIndex |> Result.traverse(match (val, i) -> Json/FromJson.fromJsonAt(p `atIndex` i, val))
+            case JsonArray(l) => l |> List.zipWithIndex |> Result.traverse(match (val, i) -> Json/FromJson.fromJsonAt(p !! i, val))
             case _ => Err(JsonError(p, Set#{"array"}))
         }
     }
@@ -231,8 +230,8 @@ namespace Json {
                 use Result.flatMap;
                 let l0 = Map.toList(m0);
                 let* l = l0 |> Result.traverse(match (k0, v0) -> 
-                    let* k = FromString.fromString(k0) |> Option.toOk(JsonError(p `atKey` k0, Set#{"valid key"}));
-                    let* v = Json/FromJson.fromJsonAt(p `atKey` k0, v0);
+                    let* k = FromString.fromString(k0) |> Option.toOk(JsonError(p !! k0, Set#{"valid key"}));
+                    let* v = Json/FromJson.fromJsonAt(p !! k0, v0);
                     Ok(k, v)
                 );
                 Ok(List.toMap(l))
