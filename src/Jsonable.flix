@@ -110,6 +110,19 @@ namespace Json {
         }
     }
 
+    instance ToJson[BigDecimal] {
+        pub def toJson(x: BigDecimal): JsonElement = JsonNumber(x)
+    }
+
+    instance FromJson[BigDecimal] {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[BigDecimal, JsonError] = match x {
+            case JsonNumber(y) => Ok(y)
+            case _ => Err(JsonError(p, Set#{"floating-point number"}))
+        }
+    }
+
+    instance Jsonable[BigDecimal]
+
     instance ToJson[Int8] {
         pub def toJson(x: Int8): JsonElement = {
             JsonNumber(Int8.toBigDecimal(x))
