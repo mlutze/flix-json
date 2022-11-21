@@ -110,6 +110,19 @@ namespace Json {
         }
     }
 
+    instance ToJson[BigDecimal] {
+        pub def toJson(x: BigDecimal): JsonElement = JsonNumber(x)
+    }
+
+    instance FromJson[BigDecimal] {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[BigDecimal, JsonError] = match x {
+            case JsonNumber(y) => Ok(y)
+            case _ => Err(JsonError(p, Set#{"floating-point number"}))
+        }
+    }
+
+    instance Jsonable[BigDecimal]
+
     instance ToJson[Int8] {
         pub def toJson(x: Int8): JsonElement = {
             JsonNumber(Int8.toBigDecimal(x))
@@ -261,6 +274,90 @@ namespace Json {
 
     instance Jsonable[Option[a]] with FromJson[a], ToJson[a]
 
+    instance ToJson[(a, b)] with ToJson[a], ToJson[b] {
+        pub def toJson(x: (a, b)): JsonElement = {
+            let (a, b) = x;
+            let jsonA = Json/ToJson.toJson(a);
+            let jsonB = Json/ToJson.toJson(b);
+            JsonArray(jsonA :: jsonB :: Nil)
+        }
+    }
+
+    instance FromJson[(a, b)] with FromJson[a], FromJson[b] {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[(a, b), JsonError] = {
+            use Result.flatMap;
+            let* l: List[JsonElement] = Json/FromJson.fromJsonAt(p, x);
+            match l {
+                case a :: b :: Nil =>
+                    let* resA = Json/FromJson.fromJsonAt(p !! 0, a);
+                    let* resB = Json/FromJson.fromJsonAt(p !! 1, b);
+                    Ok(resA, resB)
+                case _ =>
+                    Err(JsonError(p, Set#{"2-ary array"}))
+            }
+        }
+    }
+
+    instance Jsonable[(a, b)] with Jsonable[a], Jsonable[b]
+
+    instance ToJson[(a, b, c)] with ToJson[a], ToJson[b], ToJson[c] {
+        pub def toJson(x: (a, b, c)): JsonElement = {
+            let (a, b, c) = x;
+            let jsonA = Json/ToJson.toJson(a);
+            let jsonB = Json/ToJson.toJson(b);
+            let jsonC = Json/ToJson.toJson(c);
+            JsonArray(jsonA :: jsonB :: jsonC :: Nil)
+        }
+    }
+
+    instance FromJson[(a, b, c)] with FromJson[a], FromJson[b], FromJson[c] {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[(a, b, c), JsonError] = {
+            use Result.flatMap;
+            let* l: List[JsonElement] = Json/FromJson.fromJsonAt(p, x);
+            match l {
+                case a :: b :: c :: Nil =>
+                    let* resA = Json/FromJson.fromJsonAt(p !! 0, a);
+                    let* resB = Json/FromJson.fromJsonAt(p !! 1, b);
+                    let* resC = Json/FromJson.fromJsonAt(p !! 2, c);
+                    Ok(resA, resB, resC)
+                case _ =>
+                    Err(JsonError(p, Set#{"3-ary array"}))
+            }
+        }
+    }
+
+    instance Jsonable[(a, b, c)] with Jsonable[a], Jsonable[b], Jsonable[c]
+
+    instance ToJson[(a, b, c, d)] with ToJson[a], ToJson[b], ToJson[c], ToJson[d] {
+        pub def toJson(x: (a, b, c, d)): JsonElement = {
+            let (a, b, c, d) = x;
+            let jsonA = Json/ToJson.toJson(a);
+            let jsonB = Json/ToJson.toJson(b);
+            let jsonC = Json/ToJson.toJson(c);
+            let jsonD = Json/ToJson.toJson(d);
+            JsonArray(jsonA :: jsonB :: jsonC :: jsonD :: Nil)
+        }
+    }
+
+    instance FromJson[(a, b, c, d)] with FromJson[a], FromJson[b], FromJson[c], FromJson[d] {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[(a, b, c, d), JsonError] = {
+            use Result.flatMap;
+            let* l: List[JsonElement] = Json/FromJson.fromJsonAt(p, x);
+            match l {
+                case a :: b :: c :: d :: Nil =>
+                    let* resA = Json/FromJson.fromJsonAt(p !! 0, a);
+                    let* resB = Json/FromJson.fromJsonAt(p !! 1, b);
+                    let* resC = Json/FromJson.fromJsonAt(p !! 2, c);
+                    let* resD = Json/FromJson.fromJsonAt(p !! 3, d);
+                    Ok(resA, resB, resC, resD)
+                case _ =>
+                    Err(JsonError(p, Set#{"4-ary array"}))
+            }
+        }
+    }
+
+    instance Jsonable[(a, b, c, d)] with Jsonable[a], Jsonable[b], Jsonable[c], Jsonable[d]
+
     instance ToJson[JsonElement] {
         pub def toJson(x: JsonElement): JsonElement = x
     }
@@ -270,4 +367,11 @@ namespace Json {
     }
 
     instance Jsonable[JsonElement]
+
+    pub def getAtKey(p: Path, key: k, m: Map[String, JsonElement]): Result[v, JsonError] with ToString[k], FromJson[v] = {
+        match Map.get("${key}", m) {
+            case None => Err(JsonError(p, Set#{"object with key '${key}'"}))
+            case Some(val) => Json/FromJson.fromJsonAt(p !! "${key}", val)
+        }
+    }
 }

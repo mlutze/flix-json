@@ -1,11 +1,17 @@
 namespace TestJsonable {
     use Json.FromJson
+    use Json.JsonElement
     use Json.JsonElement.JsonNull
+    use Json.JsonElement.JsonObject
     use Json.JsonElement.JsonString
+    use Json.JsonError
     use Json.Jsonable
     use Json.ToJson
+    use Json.getAtKey;
     use Json/FromJson.fromJson
+    use Json/FromJson.fromJsonAt
     use Json/FromJson.fromNullableJson
+    use Json/Path.Path
     use Json/ToJson.toJson
 
     @test
@@ -50,6 +56,9 @@ namespace TestJsonable {
     }
 
     @test
+    pub def testBigDecimal01(): Bool = testRoundTrip(1.23ff)
+
+    @test
     pub def testInt8_01(): Bool = testRoundTrip(123i8)
 
     @test
@@ -86,6 +95,15 @@ namespace TestJsonable {
     pub def testOption02(): Bool = testRoundTrip(Some("hello"))
 
     @test
+    pub def testTuple01(): Bool = testRoundTrip(("asdf", 123))
+
+    @test
+    pub def testTuple02(): Bool = testRoundTrip(("asdf", 123, 'c'))
+
+    @test
+    pub def testTuple03(): Bool = testRoundTrip(("asdf", 123, 'c', 987ff))
+
+    @test
     pub def testJsonElement01(): Bool = testRoundTrip(JsonString("howdy"))
 
     @test
@@ -93,6 +111,31 @@ namespace TestJsonable {
 
     @test
     pub def testNullable02(): Bool = fromNullableJson(JsonString("hello")) == Ok(Some("hello"))
+
+    enum Thing(String, Int32) with Eq
+
+    instance ToJson[Thing] {
+        pub def toJson(x: Thing): JsonElement = {
+            let Thing(name, age) = x;
+            JsonObject(Map#{"name" => toJson(name), "age" => toJson(age)})
+        }
+    }
+
+    instance FromJson[Thing] {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Thing, JsonError] = {
+            use Result.flatMap;
+            let* map = fromJsonAt(p, x);
+            let* name = getAtKey(p, "name", map);
+            let* age = getAtKey(p, "age", map);
+            Ok(Thing(name, age))
+        }
+    }
+
+    instance Jsonable[Thing]
+
+    @test
+    pub def testThing01(): Bool = testRoundTrip(Thing("Hello", 123))
+
 
     def testRoundTrip(x: a): Bool with Jsonable[a], Eq[a] = {
         x |> toJson |> fromJson == Ok(x)
