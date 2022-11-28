@@ -25,3 +25,6 @@
 ### v0.7.1
    * Add Jsonable instances for BigDecimal and tuples 2-4
    * Add `getAtKey` function to support custom types better
+
+### v0.8.0
+   * Update syntax to Flix v0.35.0
