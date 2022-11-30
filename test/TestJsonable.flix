@@ -8,6 +8,7 @@ namespace TestJsonable {
     use Json.Jsonable
     use Json.ToJson
     use Json.getAtKey;
+    use Json.getAtKeyOpt;
     use Json/FromJson.fromJson
     use Json/FromJson.fromJsonAt
     use Json/FromJson.fromNullableJson
@@ -136,6 +137,37 @@ namespace TestJsonable {
     @test
     pub def testThing01(): Bool = testRoundTrip(Thing("Hello", 123))
 
+    enum Thing2(String, Option[Int32]) with Eq
+
+    instance ToJson[Thing2] {
+        pub def toJson(x: Thing2): JsonElement = {
+            let Thing2(name, age) = x;
+            let required = Map#{"name" => toJson(name)};
+            let all = match age {
+                case None => required
+                case Some(a) => required |> Map.insert("age", toJson(a))
+            };
+            JsonObject(all)
+        }
+    }
+
+    instance FromJson[Thing2] {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[Thing2, JsonError] = {
+            use Result.flatMap;
+            let* obj = fromJsonAt(p, x);
+            let* name = getAtKey(p, "name", obj);
+            let* age = getAtKeyOpt(p, "age", obj);
+            Ok(Thing2(name, age))
+        }
+    }
+
+    instance Jsonable[Thing2]
+
+    @test
+    pub def testThing2_01(): Bool = testRoundTrip(Thing2("Hello", None))
+
+    @test
+    pub def testThing2_02(): Bool = testRoundTrip(Thing2("Hello", Some(123)))
 
     def testRoundTrip(x: a): Bool with Jsonable[a], Eq[a] = {
         x |> toJson |> fromJson == Ok(x)
