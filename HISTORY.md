@@ -28,3 +28,6 @@
 
 ### v0.8.0
    * Update syntax to Flix v0.35.0
+
+### v0.8.1
+   * Add `getAtKeyOpt` function for optional fields
