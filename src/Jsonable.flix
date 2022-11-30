@@ -374,4 +374,14 @@ namespace Json {
             case Some(val) => Json/FromJson.fromJsonAt(p !! "${key}", val)
         }
     }
+
+    pub def getAtKeyOpt(p: Path, key: k, m: Map[String, JsonElement]): Result[Option[v], JsonError] with ToString[k], FromJson[v] = {
+        use Result.flatMap;
+        match Map.get("${key}", m) {
+            case None => Ok(None)
+            case Some(val) =>
+                let* res = Json/FromJson.fromJsonAt(p !! "${key}", val);
+                Ok(Some(res))
+        }
+    }
 }
