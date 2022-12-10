@@ -183,7 +183,7 @@ namespace Json/Parse {
             Some(parseInt(hex, 16))
         } catch {
             case _: ##java.lang.NumberFormatException => None
-        } as \ {}
+        } as _ \ {}
     }
 
     def number(in: List[Char]): ParseMonad[JsonElement] = match in {
