@@ -123,7 +123,7 @@ namespace TestJsonable {
     }
 
     instance FromJson[Thing] {
-        pub def fromJsonAt(p: Path, x: JsonElement): Result[Thing, JsonError] = {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Thing] = {
             use Result.flatMap;
             let* map = fromJsonAt(p, x);
             let* name = getAtKey(p, "name", map);
@@ -152,7 +152,7 @@ namespace TestJsonable {
     }
 
     instance FromJson[Thing2] {
-        pub def fromJsonAt(p: Path, x: JsonElement): Result[Thing2, JsonError] = {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Thing2] = {
             use Result.flatMap;
             let* obj = fromJsonAt(p, x);
             let* name = getAtKey(p, "name", obj);
