@@ -27,7 +27,7 @@ jobs:
 
           # Grep the history file for the latest release
           package_version=$(grep "^### " HISTORY.md | tail -n 1 | cut -f2 -d' ')
-          echo "package_version=${version}" >> $GITHUB_ENV
+          echo "package_version=${package_version}" >> $GITHUB_ENV
 
       - name: Release
         uses: softprops/action-gh-release@v1
