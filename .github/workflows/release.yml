@@ -23,7 +23,7 @@ jobs:
           java -jar flix.jar test
 
           # Build the package
-          java -jar flix.jar pkg
+          java -jar flix.jar build-pkg
 
           # Grep the history file for the last release
           grep "^### " HISTORY.md | tail -n 1 | cut -f2 -d' ' >> $GITHUB_ENV
