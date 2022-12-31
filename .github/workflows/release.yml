@@ -34,6 +34,7 @@ jobs:
         with:
           draft: true
           prerelease: true
+          generate_release_notes: true
           tag_name: ${{ env.package_version }}
           files: |
             flix-json.fpkg
