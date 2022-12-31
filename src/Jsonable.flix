@@ -220,7 +220,7 @@ namespace Json {
 
     instance FromJson[List[a]] with FromJson[a] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, List[a]] = match x {
-            case JsonArray(l) => l |> List.zipWithIndex |> Result.traverse(match (val, i) -> Json/FromJson.fromJsonAt(p !! i, val))
+            case JsonArray(l) => l |> List.zipWithIndex |> Result.traverse(match (i, val) -> Json/FromJson.fromJsonAt(p !! i, val))
             case _ => Err(JsonError(p, Set#{"array"}))
         }
     }
