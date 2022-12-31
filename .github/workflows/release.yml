@@ -25,8 +25,9 @@ jobs:
           # Build the package
           java -jar flix.jar build-pkg
 
-          # Grep the history file for the last release
-          grep "^### " HISTORY.md | tail -n 1 | cut -f2 -d' ' >> $GITHUB_ENV
+          # Grep the history file for the latest release
+          version=$(grep "^### " HISTORY.md | tail -n 1 | cut -f2 -d' ')
+          echo "version=${version}" >> $GITHUB_ENV
 
       - name: Release
         uses: softprops/action-gh-release@v1
