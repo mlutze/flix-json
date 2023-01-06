@@ -40,3 +40,6 @@
 
 ### v0.11.0
    * Update library to Flix v0.35.0
+
+### v0.11.1
+   * Release as full release
