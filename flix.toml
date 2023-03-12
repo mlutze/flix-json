@@ -1,0 +1,4 @@
+[package]
+name    = "flix-json"
+version = "0.11.2"
+flix    = "0.34.0"

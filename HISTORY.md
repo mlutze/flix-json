@@ -43,3 +43,6 @@
 
 ### v0.11.1
    * Release as full release
+
+### v0.11.2
+   * Add `flix.toml` file
