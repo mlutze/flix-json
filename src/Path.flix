@@ -3,6 +3,7 @@ namespace Json/Path {
     use Json.JsonElement.JsonObject;
     use Json.JsonElement;
     use Json/Utils.escape;
+    use Path.{Root, AtIndex, AtKey}
 
     ///
     /// Represents a JSON Path
