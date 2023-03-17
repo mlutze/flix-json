@@ -117,7 +117,7 @@ namespace TestJsonable {
 
     instance ToJson[Thing] {
         pub def toJson(x: Thing): JsonElement = {
-            let Thing(name, age) = x;
+            let Thing.Thing(name, age) = x;
             JsonObject(Map#{"name" => toJson(name), "age" => toJson(age)})
         }
     }
@@ -128,20 +128,20 @@ namespace TestJsonable {
             let* map = fromJsonAt(p, x);
             let* name = getAtKey(p, "name", map);
             let* age = getAtKey(p, "age", map);
-            Ok(Thing(name, age))
+            Ok(Thing.Thing(name, age))
         }
     }
 
     instance Jsonable[Thing]
 
     @test
-    pub def testThing01(): Bool = testRoundTrip(Thing("Hello", 123))
+    pub def testThing01(): Bool = testRoundTrip(Thing.Thing("Hello", 123))
 
     enum Thing2(String, Option[Int32]) with Eq
 
     instance ToJson[Thing2] {
         pub def toJson(x: Thing2): JsonElement = {
-            let Thing2(name, age) = x;
+            let Thing2.Thing2(name, age) = x;
             let required = Map#{"name" => toJson(name)};
             let all = match age {
                 case None => required
@@ -157,17 +157,17 @@ namespace TestJsonable {
             let* obj = fromJsonAt(p, x);
             let* name = getAtKey(p, "name", obj);
             let* age = getAtKeyOpt(p, "age", obj);
-            Ok(Thing2(name, age))
+            Ok(Thing2.Thing2(name, age))
         }
     }
 
     instance Jsonable[Thing2]
 
     @test
-    pub def testThing2_01(): Bool = testRoundTrip(Thing2("Hello", None))
+    pub def testThing2_01(): Bool = testRoundTrip(Thing2.Thing2("Hello", None))
 
     @test
-    pub def testThing2_02(): Bool = testRoundTrip(Thing2("Hello", Some(123)))
+    pub def testThing2_02(): Bool = testRoundTrip(Thing2.Thing2("Hello", Some(123)))
 
     def testRoundTrip(x: a): Bool with Jsonable[a], Eq[a] = {
         x |> toJson |> fromJson == Ok(x)
