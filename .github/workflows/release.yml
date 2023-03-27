@@ -37,4 +37,5 @@ jobs:
           tag_name: ${{ env.package_version }}
           files: |
             flix-json.fpkg
+            flix.toml
             
