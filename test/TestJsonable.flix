@@ -125,10 +125,13 @@ namespace TestJsonable {
     instance FromJson[Thing] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Thing] = {
             use Result.flatMap;
-            let* map = fromJsonAt(p, x);
-            let* name = getAtKey(p, "name", map);
-            let* age = getAtKey(p, "age", map);
-            Ok(Thing.Thing(name, age))
+            for (
+                map <- fromJsonAt(p, x);
+                name <- getAtKey(p, "name", map);
+                age <- getAtKey(p, "age", map)
+            ) yield {
+                Thing.Thing(name, age)    
+            }
         }
     }
 
@@ -153,11 +156,13 @@ namespace TestJsonable {
 
     instance FromJson[Thing2] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Thing2] = {
-            use Result.flatMap;
-            let* obj = fromJsonAt(p, x);
-            let* name = getAtKey(p, "name", obj);
-            let* age = getAtKeyOpt(p, "age", obj);
-            Ok(Thing2.Thing2(name, age))
+            for (
+                obj <- fromJsonAt(p, x);
+                name <- getAtKey(p, "name", obj);
+                age <- getAtKeyOpt(p, "age", obj)
+            ) yield {
+                Thing2.Thing2(name, age)
+            }
         }
     }
 
