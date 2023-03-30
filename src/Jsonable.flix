@@ -244,12 +244,17 @@ namespace Json {
             case JsonObject(m0) =>
                 use Result.flatMap;
                 let l0 = Map.toList(m0);
-                let* l = l0 |> Result.traverse(match (k0, v0) -> 
-                    let* k = FromString.fromString(k0) |> Option.toOk(JsonError(p !! k0, Set#{"valid key"}));
-                    let* v = Json/FromJson.fromJsonAt(p !! k0, v0);
-                    Ok(k, v)
-                );
-                Ok(List.toMap(l))
+                for (
+                    l <- l0 |> Result.traverse(match (k0, v0) -> 
+                    for (
+                        k <- FromString.fromString(k0) |> Option.toOk(JsonError(p !! k0, Set#{"valid key"}));
+                        v <- Json/FromJson.fromJsonAt(p !! k0, v0)
+                    ) yield {
+                        (k, v)
+                    })
+                ) yield {
+                    List.toMap(l)
+                }
             case _ => Err(JsonError(p, Set#{"object"}))
         }
     }
@@ -267,9 +272,11 @@ namespace Json {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Option[a]] = match x {
             case JsonArray(Nil) => Ok(None)
             case JsonArray(y0 :: Nil) =>
-                use Result.flatMap;
-                let* y = Json/FromJson.fromJsonAt(p, y0);
-                Ok(Some(y))
+                for (
+                    y <- Json/FromJson.fromJsonAt(p, y0)
+                ) yield {
+                    Some(y)
+                }
             case _ => Err(JsonError(p, Set#{"empty array", "singleton array"}))
         }
     }
@@ -287,15 +294,21 @@ namespace Json {
 
     instance FromJson[(a, b)] with FromJson[a], FromJson[b] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b)] = {
-            use Result.flatMap;
-            let* l: List[JsonElement] = Json/FromJson.fromJsonAt(p, x);
-            match l {
-                case a :: b :: Nil =>
-                    let* resA = Json/FromJson.fromJsonAt(p !! 0, a);
-                    let* resB = Json/FromJson.fromJsonAt(p !! 1, b);
-                    Ok(resA, resB)
-                case _ =>
-                    Err(JsonError(p, Set#{"2-ary array"}))
+            for (
+                l <- Json/FromJson.fromJsonAt(p, x);
+                res <- match l {
+                    case a :: b :: Nil =>
+                        for (
+                            resA <- Json/FromJson.fromJsonAt(p !! 0, a);
+                            resB <- Json/FromJson.fromJsonAt(p !! 1, b)
+                        ) yield {
+                            (resA, resB)
+                        }
+                    case _ =>
+                        Err(JsonError(p, Set#{"2-ary array"}))
+                }
+            ) yield {
+                res
             }
         }
     }
@@ -314,16 +327,22 @@ namespace Json {
 
     instance FromJson[(a, b, c)] with FromJson[a], FromJson[b], FromJson[c] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b, c)] = {
-            use Result.flatMap;
-            let* l: List[JsonElement] = Json/FromJson.fromJsonAt(p, x);
-            match l {
-                case a :: b :: c :: Nil =>
-                    let* resA = Json/FromJson.fromJsonAt(p !! 0, a);
-                    let* resB = Json/FromJson.fromJsonAt(p !! 1, b);
-                    let* resC = Json/FromJson.fromJsonAt(p !! 2, c);
-                    Ok(resA, resB, resC)
-                case _ =>
-                    Err(JsonError(p, Set#{"3-ary array"}))
+            for (
+                l <- Json/FromJson.fromJsonAt(p, x);
+                res <- match l {
+                    case a :: b :: c :: Nil =>
+                        for (
+                            resA <- Json/FromJson.fromJsonAt(p !! 0, a);
+                            resB <- Json/FromJson.fromJsonAt(p !! 1, b);
+                            resC <- Json/FromJson.fromJsonAt(p !! 2, c)
+                        ) yield {
+                            (resA, resB, resC)
+                        }
+                    case _ =>
+                        Err(JsonError(p, Set#{"3-ary array"}))
+                }
+            ) yield {
+                res
             }
         }
     }
@@ -343,17 +362,23 @@ namespace Json {
 
     instance FromJson[(a, b, c, d)] with FromJson[a], FromJson[b], FromJson[c], FromJson[d] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b, c, d)] = {
-            use Result.flatMap;
-            let* l: List[JsonElement] = Json/FromJson.fromJsonAt(p, x);
-            match l {
-                case a :: b :: c :: d :: Nil =>
-                    let* resA = Json/FromJson.fromJsonAt(p !! 0, a);
-                    let* resB = Json/FromJson.fromJsonAt(p !! 1, b);
-                    let* resC = Json/FromJson.fromJsonAt(p !! 2, c);
-                    let* resD = Json/FromJson.fromJsonAt(p !! 3, d);
-                    Ok(resA, resB, resC, resD)
-                case _ =>
-                    Err(JsonError(p, Set#{"4-ary array"}))
+            for (
+                l <- Json/FromJson.fromJsonAt(p, x);
+                res <- match l {
+                    case a :: b :: c :: d :: Nil =>
+                        for (
+                            resA <- Json/FromJson.fromJsonAt(p !! 0, a);
+                            resB <- Json/FromJson.fromJsonAt(p !! 1, b);
+                            resC <- Json/FromJson.fromJsonAt(p !! 2, c);
+                            resD <- Json/FromJson.fromJsonAt(p !! 3, d)
+                        ) yield {
+                            (resA, resB, resC, resD)
+                        }
+                    case _ =>
+                        Err(JsonError(p, Set#{"4-ary array"}))
+                }
+            ) yield {
+                res
             }
         }
     }
@@ -382,8 +407,11 @@ namespace Json {
         match Map.get("${key}", m) {
             case None => Ok(None)
             case Some(val) =>
-                let* res = Json/FromJson.fromJsonAt(p !! "${key}", val);
-                Ok(Some(res))
+                for (
+                    res <- Json/FromJson.fromJsonAt(p !! "${key}", val)
+                ) yield {
+                    Some(res)
+                }
         }
     }
 }
