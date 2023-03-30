@@ -52,3 +52,6 @@
 
 ### v0.12.1
    * Add `flix.toml` separately to release
+
+### v0.12.2
+   * Update syntax to Flix v0.35.0
