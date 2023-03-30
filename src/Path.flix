@@ -53,20 +53,27 @@ namespace Json/Path {
     /// Retrieves the element at the given JSON path.
     ///
     pub def apply(p: Path, json: JsonElement): Option[JsonElement] = {
-        use Option.flatMap;
         match p {
             case Root => Some(json)
             case AtIndex(root, i) =>
-                let* next = apply(root, json);
-                match next {
-                    case JsonArray(l) => nth(i, l)
-                    case _ => None
+                for (
+                    next <- apply(root, json);
+                    res <- match next {
+                            case JsonArray(l) => nth(i, l)
+                            case _ => None
+                        }
+                ) yield {
+                    res
                 }
             case (AtKey(root, key)) =>
-                let* next = apply(root, json);
-                match next {
-                    case JsonObject(m) => Map.get(key, m)
-                    case _ => None
+                for (
+                    next <- apply(root, json);
+                    res <- match next {
+                            case JsonObject(o) => Map.get(key, o)
+                            case _ => None
+                        }
+                ) yield {
+                    res
                 }
         }
     }
