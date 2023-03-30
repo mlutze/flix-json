@@ -14,12 +14,18 @@ namespace Json/Parse {
     ///
     pub def parse(obj: String): Option[JsonElement] = {
         let in = String.toList(obj);
-        let* (_, tail) = whitespace(in);
-        let* (o, tail1) = object_(tail);
-        match tail1 {
-            case Nil => Some(o)
-            case _ :: _ => None
+        for (
+            (_, tail) <- whitespace(in);
+            (o, tail1) <- object_(tail);
+            _ <- eoi(tail1)
+        ) yield {
+            o
         }
+    }
+
+    def eoi(in: List[Char]): ParseMonad[Unit] = match in {
+        case Nil => Some((), Nil)
+        case _ :: _ => None
     }
 
     def whitespace(in: List[Char]): ParseMonad[Unit] = match in {
@@ -31,34 +37,43 @@ namespace Json/Parse {
     }
 
     def object_(in: List[Char]): ParseMonad[JsonElement] = {
-        let* (_, tail) = require('{', in);
-        let* (_, tail1) = whitespace(tail);
-        let* (keyVals, tail2) = keyVals(tail1);
-        let* (_, tail3) = require('}', tail2);
-        let* (_, tail4) = whitespace(tail3);
-        let map = List.toMap(keyVals);
-        Some(JsonObject(map), tail4)
+        for (
+            (_, tail) <- require('{', in);
+            (_, tail1) <- whitespace(tail);
+            (keyVals, tail2) <- keyVals(tail1);
+            (_, tail3) <- require('}', tail2);
+            (_, tail4) <- whitespace(tail3)
+        ) yield {
+            let map = List.toMap(keyVals);
+            (JsonObject(map), tail4)
+        }
     }
 
     def keyVals(in: List[Char]): ParseMonad[List[(String, JsonElement)]] = match in {
         // Case 1: starting a keyval pair
         case '\"' :: _ =>
-            let* (key, tail) = string(in);
-            let* (_, tail1) = whitespace(tail);
-            let* (_, tail2) = require(':', tail1);
-            let* (_, tail3) = whitespace(tail2);
-            let* (val, tail4) = value(tail3);
-            let* (_, tail5) = whitespace(tail4);
-            match tail5 {
-                case ',' :: tail6 =>
-                    let* (_, tail7) = whitespace(tail6);
-                    let* (tailKeyVals, tail8) = keyVals(tail7);
-                    let list = (key, val) :: tailKeyVals;
-                    Some(list, tail8)
-                case '}' :: _ =>
-                    let list = (key, val) :: Nil;
-                    Some(list, tail5)
-                case _ => None
+            for (
+                (key, tail) <- string(in);
+                (_, tail1) <- whitespace(tail);
+                (_, tail2) <- require(':', tail1);
+                (_, tail3) <- whitespace(tail2);
+                (val, tail4) <- value(tail3);
+                (_, tail5) <- whitespace(tail4);
+                res <- match tail5 {
+                    case ',' :: tail6 => for (
+                            (_, tail7) <- whitespace(tail6);
+                            (tailKeyVals, tail8) <- keyVals(tail7)
+                        ) yield {
+                            let list = (key, val) :: tailKeyVals;
+                            (list, tail8)
+                        }
+                    case '}' :: _ =>
+                        let list = (key, val) :: Nil;
+                        Some(list, tail5)
+                    case _ => None
+                }
+            ) yield {
+                res
             }
 
         // Case 2: end of list
@@ -69,28 +84,38 @@ namespace Json/Parse {
     }
 
     def array(in: List[Char]): ParseMonad[JsonElement] = {
-        let* (_, tail) = require('[', in);
-        let* (_, tail1) = whitespace(tail);
-        let* (elems, tail2) = elements(tail1);
-        let* (_, tail3) = require(']', tail2);
-        Some(JsonArray(elems), tail3)
+        for (
+            (_, tail) <- require('[', in);
+            (_, tail1) <- whitespace(tail);
+            (elems, tail2) <- elements(tail1);
+            (_, tail3) <- require(']', tail2)
+        ) yield {
+            (JsonArray(elems), tail3)
+        }
     }
 
     def elements(in: List[Char]): ParseMonad[List[JsonElement]] = match in {
         case ']' :: _ => Some(Nil, in)
         case _ =>
-            let* (val, tail) = value(in);
-            let* (_, tail1) = whitespace(tail);
-            match tail1 {
-                case ',' :: tail2 =>
-                    let* (_, tail3) = whitespace(tail2);
-                    let* (rest, tail4) = elements(tail3);
-                    let list = val :: rest;
-                    Some(list, tail4)
-                case ']' :: _ =>
-                    let list = val :: Nil;
-                    Some(list, tail1)
-                case _ => None
+            for (
+                (val, tail) <- value(in);
+                (_, tail1) <- whitespace(tail);
+                res <- match tail1 {
+                    case ',' :: tail2 =>
+                        for (
+                            (_, tail3) <- whitespace(tail2);
+                            (rest, tail4) <- elements(tail3)
+                        ) yield {
+                            let list = val :: rest;
+                            (list, tail4)
+                        }
+                    case ']' :: _ =>
+                        let list = val :: Nil;
+                        Some(list, tail1)
+                    case _ => None
+                }
+            ) yield {
+                res
             }
     }
 
@@ -110,16 +135,22 @@ namespace Json/Parse {
     }
 
     def stringValue(in: List[Char]): ParseMonad[JsonElement] = {
-        let* (str, tail) = string(in);
-        Some(JsonString(str), tail)
+        for (
+            (str, tail) <- string(in)
+        ) yield {
+            (JsonString(str), tail)
+        }
     }
 
     def string(in: List[Char]): ParseMonad[String] = {
-        let* (_, tail) = require('\"', in);
-        let* (contents, tail2) = stringContents(tail);
-        let* (_, tail3) = require('\"', tail2);
-        let str = listToString(contents);
-        Some(str, tail3)
+        for (
+            (_, tail) <- require('\"', in);
+            (contents, tail2) <- stringContents(tail);
+            (_, tail3) <- require('\"', tail2)
+        ) yield {
+            let str = listToString(contents);
+            (str, tail3)
+        }
     }
 
     def listToString(list: List[Char]): String = region r {
@@ -132,47 +163,77 @@ namespace Json/Parse {
         case '\"' :: _ => Some(Nil, in)
 
         case '\\' :: '\"' :: tail =>
-            let* (rest, tail2) = stringContents(tail);
-            Some('\"' :: rest, tail2)
+            for (
+                (rest, tail2) <- stringContents(tail)
+            ) yield {
+                ('\"' :: rest, tail2)
+            }
 
         case '\\' :: '\\' :: tail =>
-            let* (rest, tail2) = stringContents(tail);
-            Some('\\' :: rest, tail2)
+            for (
+                (rest, tail2) <- stringContents(tail)
+            ) yield {
+                ('\\' :: rest, tail2)
+            }
 
         case '\\' :: '/' :: tail =>
-            let* (rest, tail2) = stringContents(tail);
-            Some('/' :: rest, tail2)
+            for (
+                (rest, tail2) <- stringContents(tail)
+            ) yield {
+                ('/' :: rest, tail2)
+            }
 
         case '\\' :: 'b' :: tail =>
-            let* (rest, tail2) = stringContents(tail);
-            Some('\u0008' :: rest, tail2)
+            for (
+                (rest, tail2) <- stringContents(tail)
+            ) yield {
+                ('\u0008' :: rest, tail2)
+            }
 
         case '\\' :: 'f' :: tail =>
-            let* (rest, tail2) = stringContents(tail);
-            Some('\u000C' :: rest, tail2)
+            for (
+                (rest, tail2) <- stringContents(tail)
+            ) yield {
+                ('\u000C' :: rest, tail2)
+            }
 
         case '\\' :: 'n' :: tail =>
-            let* (rest, tail2) = stringContents(tail);
-            Some('\n' :: rest, tail2)
+            for (
+                (rest, tail2) <- stringContents(tail)
+            ) yield {
+                ('\n' :: rest, tail2)
+            }
 
         case '\\' :: 'r' :: tail =>
-            let* (rest, tail2) = stringContents(tail);
-            Some('\r' :: rest, tail2)
+            for (
+                (rest, tail2) <- stringContents(tail)
+            ) yield {
+                ('\r' :: rest, tail2)
+            }
 
         case '\\' :: 't' :: tail =>
-            let* (rest, tail2) = stringContents(tail);
-            Some('\t' :: rest, tail2)
+            for (
+                (rest, tail2) <- stringContents(tail)
+            ) yield {
+                ('\t' :: rest, tail2)
+            }
 
         case '\\' :: 'u' :: c1 :: c2 :: c3 :: c4 :: tail =>
-            let* (rest, tail2) = stringContents(tail);
-            let string = listToString(c1 :: c2 :: c3 :: c4 :: Nil);
-            let* intVal = hexToInt(string);
-            let char = Char.fromInt32(intVal);
-            Some(char :: rest, tail2)
+            for (
+                (rest, tail2) <- stringContents(tail);
+                string <- listToString(c1 :: c2 :: c3 :: c4 :: Nil) |> Some;
+                intVal <- hexToInt(string)
+            ) yield {
+                let char = Char.fromInt32(intVal);
+                (char :: rest, tail2)
+            }
 
         case c :: tail =>
-            let* (rest, tail2) = stringContents(tail);
-            Some(c :: rest, tail2)
+            for (
+                (rest, tail2) <- stringContents(tail)
+            ) yield {
+                (c :: rest, tail2)
+            }
         // unexpected EOI
         case Nil => None
     }
@@ -188,11 +249,14 @@ namespace Json/Parse {
 
     def number(in: List[Char]): ParseMonad[JsonElement] = match in {
         case c :: tail if isNumberChar(c) =>
-            let* (chars, tail1) = numberTail(tail);
-            let string = listToString(c :: chars);
-            let* bigDec = BigDecimal.fromString(string);
-            let number = JsonNumber(bigDec);
-            Some(number, tail1)
+            for (
+                (chars, tail1) <- numberTail(tail);
+                string <- listToString(c :: chars) |> Some;
+                bigDec <- BigDecimal.fromString(string)
+            ) yield {
+                let number = JsonNumber(bigDec);
+                (number, tail1)
+            }
         case _ => None
     }
 
@@ -200,8 +264,11 @@ namespace Json/Parse {
 
     def numberTail(in: List[Char]): ParseMonad[List[Char]] = match in {
         case c :: tail if isNumberChar(c) =>
-            let* (chars, tail1) = numberTail(tail);
-            Some(c :: chars, tail1)
+            for (
+                (chars, tail1) <- numberTail(tail)
+            ) yield {
+                (c :: chars, tail1)
+            }
         case _ => Some(Nil, in)
     }
 
