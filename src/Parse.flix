@@ -224,7 +224,8 @@ namespace Json/Parse {
                 string <- listToString(c1 :: c2 :: c3 :: c4 :: Nil) |> Some;
                 intVal <- hexToInt(string)
             ) yield {
-                let char = Char.fromInt32(intVal);
+                import static java.lang.Character.toChars(Int32): Array[Char, Static] \ IO;
+                let char = unchecked_cast(toChars(intVal) |> Array.get(0) as _ \ {});
                 (char :: rest, tail2)
             }
 

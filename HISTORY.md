@@ -55,3 +55,6 @@
 
 ### v0.12.2
    * Update syntax to Flix v0.35.0
+
+### v0.12.3
+   * Update library to Flix v0.36.0
