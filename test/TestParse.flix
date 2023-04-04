@@ -41,4 +41,9 @@ namespace TestParse {
     def testSingletonFloat01(): Bool = {
         parse("{\"key\": 1.0}") == Some(JsonObject(Map#{"key" => JsonNumber(1.0ff)}))
     }
+
+    @test
+    def testUnicode01(): Bool = {
+        parse("{\"key\": \"\\u0446\"}") == Some(JsonObject(Map#{"key" => JsonString("ц")}))
+    }
 }
