@@ -1,4 +1,4 @@
-namespace Json {
+mod Json {
     use JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
     pub enum JsonElement {

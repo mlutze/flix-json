@@ -1,4 +1,4 @@
-namespace TestJsonable {
+mod TestJsonable {
     use Json.FromJson
     use Json.JsonElement
     use Json.JsonElement.JsonNull

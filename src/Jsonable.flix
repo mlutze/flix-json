@@ -1,4 +1,4 @@
-namespace Json {
+mod Json {
     use Json/Path.Path;
     use Json/Path.{!!};
     use JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
