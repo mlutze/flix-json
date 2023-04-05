@@ -1,4 +1,4 @@
-namespace TestPath {
+mod TestPath {
     use Json/Path.apply;
     use Json/Path.{!!};
     use Json/Path.Path.Root;

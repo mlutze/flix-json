@@ -1,5 +1,5 @@
-namespace TestWrite {
-    namespace Compact {
+mod TestWrite {
+    mod Compact {
         use Json/Write.toCompactString
         use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
@@ -41,7 +41,7 @@ namespace TestWrite {
         }
     }
 
-    namespace Pretty {
+    mod Pretty {
         use Json/Write.toPrettyString
         use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 

@@ -1,4 +1,4 @@
-namespace TestParse {
+mod TestParse {
     use Json/Parse.parse
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     

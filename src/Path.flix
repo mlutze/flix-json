@@ -1,4 +1,4 @@
-namespace Json/Path {
+mod Json/Path {
     use Json.JsonElement.JsonArray;
     use Json.JsonElement.JsonObject;
     use Json.JsonElement;

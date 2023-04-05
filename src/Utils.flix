@@ -1,4 +1,4 @@
-namespace Json/Utils {
+mod Json/Utils {
 
     ///
     /// Converts the given string into a JSON string, including surrounding quotes.
