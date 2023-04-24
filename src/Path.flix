@@ -1,8 +1,8 @@
-mod Json/Path {
+mod Json.Path {
     use Json.JsonElement.JsonArray;
     use Json.JsonElement.JsonObject;
     use Json.JsonElement;
-    use Json/Utils.escape;
+    use Json.Utils.escape;
     use Path.{Root, AtIndex, AtKey}
 
     ///
@@ -37,7 +37,7 @@ mod Json/Path {
     //
     // Appends the index or key to the path.
     //
-    pub def !!(p: Path, x: a): Path with Appendable[a] = Json/Path/Appendable.append(x, p)
+    pub def !!(p: Path, x: a): Path with Appendable[a] = Json.Path/Appendable.append(x, p)
 
     ///
     /// Appends an index to the path.

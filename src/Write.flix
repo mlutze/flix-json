@@ -1,7 +1,7 @@
-mod Json/Write {
+mod Json.Write {
     use Json.JsonElement
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
-    use Json/Utils.escape
+    use Json.Utils.escape
 
     ///
     /// Returns the string corresponding to the given JSON object, written without extraneous space.

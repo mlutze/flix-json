@@ -9,11 +9,11 @@ mod TestJsonable {
     use Json.ToJson
     use Json.getAtKey;
     use Json.getAtKeyOpt;
-    use Json/FromJson.fromJson
-    use Json/FromJson.fromJsonAt
-    use Json/FromJson.fromNullableJson
-    use Json/Path.Path
-    use Json/ToJson.toJson
+    use Json.FromJson.fromJson
+    use Json.FromJson.fromJsonAt
+    use Json.FromJson.fromNullableJson
+    use Json.Path.Path
+    use Json.ToJson.toJson
 
     @test
     pub def testBool01(): Bool = testRoundTrip(true)

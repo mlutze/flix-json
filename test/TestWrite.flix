@@ -1,6 +1,6 @@
 mod TestWrite {
     mod Compact {
-        use Json/Write.toCompactString
+        use Json.Write.toCompactString
         use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
         @test
@@ -42,7 +42,7 @@ mod TestWrite {
     }
 
     mod Pretty {
-        use Json/Write.toPrettyString
+        use Json.Write.toPrettyString
         use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
         @test
