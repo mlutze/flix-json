@@ -1,7 +1,7 @@
 mod TestPath {
-    use Json/Path.apply;
-    use Json/Path.{!!};
-    use Json/Path.Path.Root;
+    use Json.Path.apply;
+    use Json.Path.{!!};
+    use Json.Path.Path.Root;
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
     @test

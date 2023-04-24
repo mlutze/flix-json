@@ -1,6 +1,6 @@
 mod Json {
-    use Json/Path.Path;
-    use Json/Path.{!!};
+    use Json.Path.Path;
+    use Json.Path.{!!};
     use JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     use JsonError.JsonError
 
@@ -12,18 +12,18 @@ mod Json {
 
     pub class FromJson[a] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, a]
-        pub def fromJson(x: JsonElement): Result[JsonError, a] = Json/FromJson.fromJsonAt(Path.Root, x)
+        pub def fromJson(x: JsonElement): Result[JsonError, a] = Json.FromJson.fromJsonAt(Path.Root, x)
         pub def fromNullableJsonAt(p: Path, x: JsonElement): Result[JsonError, Option[a]] = match x {
             case JsonNull => Ok(None)
-            case y => Json/FromJson.fromJsonAt(p, y)
+            case y => Json.FromJson.fromJsonAt(p, y)
                 |> Result.mapErr(match JsonError(path, expected) -> JsonError(path, Set.insert("null", expected)))
                 |> Result.map(Some)
         }
-        pub def fromNullableJson(x: JsonElement): Result[JsonError, Option[a]] = Json/FromJson.fromNullableJsonAt(Path.Root, x)
+        pub def fromNullableJson(x: JsonElement): Result[JsonError, Option[a]] = Json.FromJson.fromNullableJsonAt(Path.Root, x)
     }
 
     pub lawful class Jsonable[a] with ToJson[a], FromJson[a] {
-        law inverse: forall (x: a) with Eq[a] . (x |> Json/ToJson.toJson |> Json/FromJson.fromJson == Ok(x))
+        law inverse: forall (x: a) with Eq[a] . (x |> Json.ToJson.toJson |> Json.FromJson.fromJson == Ok(x))
     }
 
     instance ToJson[Bool] {
@@ -215,14 +215,14 @@ mod Json {
 
     instance ToJson[List[a]] with ToJson[a] {
         pub def toJson(x: List[a]): JsonElement = {
-            let elems = List.map(Json/ToJson.toJson, x);
+            let elems = List.map(Json.ToJson.toJson, x);
             JsonArray(elems)
         }
     }
 
     instance FromJson[List[a]] with FromJson[a] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, List[a]] = match x {
-            case JsonArray(l) => l |> List.zipWithIndex |> Result.traverse(match (i, val) -> Json/FromJson.fromJsonAt(p !! i, val))
+            case JsonArray(l) => l |> List.zipWithIndex |> Result.traverse(match (i, val) -> Json.FromJson.fromJsonAt(p !! i, val))
             case _ => Err(JsonError(p, Set#{"array"}))
         }
     }
@@ -233,7 +233,7 @@ mod Json {
         pub def toJson(x: Map[k, v]): JsonElement = {
             let map = x
                 |> Map.toList
-                |> List.map(match (k, v) -> (ToString.toString(k), Json/ToJson.toJson(v)))
+                |> List.map(match (k, v) -> (ToString.toString(k), Json.ToJson.toJson(v)))
                 |> List.toMap;
             JsonObject(map)
         }
@@ -248,7 +248,7 @@ mod Json {
                     l <- l0 |> Result.traverse(match (k0, v0) -> 
                     for (
                         k <- FromString.fromString(k0) |> Option.toOk(JsonError(p !! k0, Set#{"valid key"}));
-                        v <- Json/FromJson.fromJsonAt(p !! k0, v0)
+                        v <- Json.FromJson.fromJsonAt(p !! k0, v0)
                     ) yield {
                         (k, v)
                     })
@@ -263,7 +263,7 @@ mod Json {
 
     instance ToJson[Option[a]] with ToJson[a] {
         pub def toJson(x: Option[a]): JsonElement = match x {
-            case Some(y) => JsonArray(Json/ToJson.toJson(y) :: Nil)
+            case Some(y) => JsonArray(Json.ToJson.toJson(y) :: Nil)
             case None => JsonArray(Nil)
         }
     }
@@ -273,7 +273,7 @@ mod Json {
             case JsonArray(Nil) => Ok(None)
             case JsonArray(y0 :: Nil) =>
                 for (
-                    y <- Json/FromJson.fromJsonAt(p, y0)
+                    y <- Json.FromJson.fromJsonAt(p, y0)
                 ) yield {
                     Some(y)
                 }
@@ -286,8 +286,8 @@ mod Json {
     instance ToJson[(a, b)] with ToJson[a], ToJson[b] {
         pub def toJson(x: (a, b)): JsonElement = {
             let (a, b) = x;
-            let jsonA = Json/ToJson.toJson(a);
-            let jsonB = Json/ToJson.toJson(b);
+            let jsonA = Json.ToJson.toJson(a);
+            let jsonB = Json.ToJson.toJson(b);
             JsonArray(jsonA :: jsonB :: Nil)
         }
     }
@@ -295,12 +295,12 @@ mod Json {
     instance FromJson[(a, b)] with FromJson[a], FromJson[b] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b)] = {
             for (
-                l <- Json/FromJson.fromJsonAt(p, x);
+                l <- Json.FromJson.fromJsonAt(p, x);
                 res <- match l {
                     case a :: b :: Nil =>
                         for (
-                            resA <- Json/FromJson.fromJsonAt(p !! 0, a);
-                            resB <- Json/FromJson.fromJsonAt(p !! 1, b)
+                            resA <- Json.FromJson.fromJsonAt(p !! 0, a);
+                            resB <- Json.FromJson.fromJsonAt(p !! 1, b)
                         ) yield {
                             (resA, resB)
                         }
@@ -318,9 +318,9 @@ mod Json {
     instance ToJson[(a, b, c)] with ToJson[a], ToJson[b], ToJson[c] {
         pub def toJson(x: (a, b, c)): JsonElement = {
             let (a, b, c) = x;
-            let jsonA = Json/ToJson.toJson(a);
-            let jsonB = Json/ToJson.toJson(b);
-            let jsonC = Json/ToJson.toJson(c);
+            let jsonA = Json.ToJson.toJson(a);
+            let jsonB = Json.ToJson.toJson(b);
+            let jsonC = Json.ToJson.toJson(c);
             JsonArray(jsonA :: jsonB :: jsonC :: Nil)
         }
     }
@@ -328,13 +328,13 @@ mod Json {
     instance FromJson[(a, b, c)] with FromJson[a], FromJson[b], FromJson[c] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b, c)] = {
             for (
-                l <- Json/FromJson.fromJsonAt(p, x);
+                l <- Json.FromJson.fromJsonAt(p, x);
                 res <- match l {
                     case a :: b :: c :: Nil =>
                         for (
-                            resA <- Json/FromJson.fromJsonAt(p !! 0, a);
-                            resB <- Json/FromJson.fromJsonAt(p !! 1, b);
-                            resC <- Json/FromJson.fromJsonAt(p !! 2, c)
+                            resA <- Json.FromJson.fromJsonAt(p !! 0, a);
+                            resB <- Json.FromJson.fromJsonAt(p !! 1, b);
+                            resC <- Json.FromJson.fromJsonAt(p !! 2, c)
                         ) yield {
                             (resA, resB, resC)
                         }
@@ -352,10 +352,10 @@ mod Json {
     instance ToJson[(a, b, c, d)] with ToJson[a], ToJson[b], ToJson[c], ToJson[d] {
         pub def toJson(x: (a, b, c, d)): JsonElement = {
             let (a, b, c, d) = x;
-            let jsonA = Json/ToJson.toJson(a);
-            let jsonB = Json/ToJson.toJson(b);
-            let jsonC = Json/ToJson.toJson(c);
-            let jsonD = Json/ToJson.toJson(d);
+            let jsonA = Json.ToJson.toJson(a);
+            let jsonB = Json.ToJson.toJson(b);
+            let jsonC = Json.ToJson.toJson(c);
+            let jsonD = Json.ToJson.toJson(d);
             JsonArray(jsonA :: jsonB :: jsonC :: jsonD :: Nil)
         }
     }
@@ -363,14 +363,14 @@ mod Json {
     instance FromJson[(a, b, c, d)] with FromJson[a], FromJson[b], FromJson[c], FromJson[d] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b, c, d)] = {
             for (
-                l <- Json/FromJson.fromJsonAt(p, x);
+                l <- Json.FromJson.fromJsonAt(p, x);
                 res <- match l {
                     case a :: b :: c :: d :: Nil =>
                         for (
-                            resA <- Json/FromJson.fromJsonAt(p !! 0, a);
-                            resB <- Json/FromJson.fromJsonAt(p !! 1, b);
-                            resC <- Json/FromJson.fromJsonAt(p !! 2, c);
-                            resD <- Json/FromJson.fromJsonAt(p !! 3, d)
+                            resA <- Json.FromJson.fromJsonAt(p !! 0, a);
+                            resB <- Json.FromJson.fromJsonAt(p !! 1, b);
+                            resC <- Json.FromJson.fromJsonAt(p !! 2, c);
+                            resD <- Json.FromJson.fromJsonAt(p !! 3, d)
                         ) yield {
                             (resA, resB, resC, resD)
                         }
@@ -398,7 +398,7 @@ mod Json {
     pub def getAtKey(p: Path, key: k, m: Map[String, JsonElement]): Result[JsonError, v] with ToString[k], FromJson[v] = {
         match Map.get("${key}", m) {
             case None => Err(JsonError(p, Set#{"object with key '${key}'"}))
-            case Some(val) => Json/FromJson.fromJsonAt(p !! "${key}", val)
+            case Some(val) => Json.FromJson.fromJsonAt(p !! "${key}", val)
         }
     }
 
@@ -408,7 +408,7 @@ mod Json {
             case None => Ok(None)
             case Some(val) =>
                 for (
-                    res <- Json/FromJson.fromJsonAt(p !! "${key}", val)
+                    res <- Json.FromJson.fromJsonAt(p !! "${key}", val)
                 ) yield {
                     Some(res)
                 }
