@@ -240,7 +240,7 @@ mod Json.Parse {
     }
 
     def hexToInt(hex: String): Option[Int32] = {
-        import static java.lang.Integer.parseInt(String, Int32): Int32 & Impure;
+        import static java.lang.Integer.parseInt(String, Int32): Int32 \ IO;
         unchecked_cast(try {
             Some(parseInt(hex, 16))
         } catch {
