@@ -1,0 +1,29 @@
+name: Test Release on Flix Nightly
+
+on:
+  schedule:
+    cron: '0 0 * * *'
+
+jobs:
+  build-nightly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          # check out the latest release
+          tag=$(git describe --tags --abbrev=0)
+          git checkout "$tag"
+      - uses: actions/setup-java@v2.5.0
+        with:
+          java-version: 17
+          distribution: zulu
+      - run: |
+          # download today's or yesterday's Flix JAR
+          today=$(date -d today +%Y-%m-%d)
+          yesterday=$(date -d yesterday +%Y-%m-%d)
+          today_url="https://flix.dev/nightly/flix-${today}.jar"
+          yesterday_url="https://flix.dev/nightly/flix-${yesterday}.jar"
+          curl -L -f "${today_url}" > flix.jar || curl -L -f "${yesterday_url}" > flix.jar
+
+          # run tests
+          java -jar flix.jar test --github-key ${{ github.token }}
