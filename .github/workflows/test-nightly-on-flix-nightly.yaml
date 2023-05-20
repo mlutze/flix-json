@@ -1,4 +1,4 @@
-name: Test Release on Flix Nightly
+name: Test Nightly on Flix Nightly
 
 on:
   schedule:
@@ -9,10 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: |
-          # check out the latest release
-          tag=$(git describe --tags --abbrev=0)
-          git checkout "$tag"
       - uses: actions/setup-java@v2.5.0
         with:
           java-version: 17
