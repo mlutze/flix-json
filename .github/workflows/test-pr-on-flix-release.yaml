@@ -20,7 +20,7 @@ jobs:
           field: 'package.flix'
       - run: |
           # download Flix JAR
-          curl -L https://github.com/flix/flix/releases/download/v${{steps.read_toml.output.value}}/flix.jar > flix.jar
+          curl -L https://github.com/flix/flix/releases/download/v${{steps.read_toml.outputs.value}}/flix.jar > flix.jar
 
           # run tests
           java -jar flix.jar test --github-key ${{ github.token }}
