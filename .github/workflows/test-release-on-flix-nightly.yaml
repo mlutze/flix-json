@@ -19,7 +19,7 @@ jobs:
           distribution: zulu
       - run: |
           # download the latest nightly Flix JAR
-          url="https://flix.dev/nightly/latest.jar"
+          url="https://flix.dev/nightly/flix-latest.jar"
           curl -L -f "$url" > flix.jar
 
           # run tests
