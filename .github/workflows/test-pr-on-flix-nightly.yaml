@@ -1,12 +1,11 @@
-name: Build on Latest Release
+name: Test PR on Flix Nightly
 
-# Controls when the workflow will run
 on:
   pull_request:
     branches: [ master ]
 
 jobs:
-  build-latest:
+  build-nightly:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -15,8 +14,9 @@ jobs:
           java-version: 17
           distribution: zulu
       - run: |
-          # download Flix JAR
-          curl -L https://github.com/flix/flix/releases/latest/download/flix.jar > flix.jar
+          # download the latest nightly Flix JAR
+          url="https://flix.dev/nightly/flix-latest.jar"
+          curl -L -f "$url" > flix.jar
 
           # run tests
-          java -jar flix.jar test
+          java -jar flix.jar test --github-key ${{ github.token }}
