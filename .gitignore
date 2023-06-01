@@ -1,6 +1,7 @@
 /build
 /target
 /artifact
+/lib
 
 # Since this is built at the top level with flix build-pkg
 flix-json.fpkg
