@@ -4,3 +4,6 @@ version     = "0.12.6"
 flix        = "0.37.0"
 description = "Flix library for reading and writing JSON"
 authors     = ["Matthew Lutze"]
+
+[dependencies]
+"github:mlutze/flix-later" = "0.1.0"

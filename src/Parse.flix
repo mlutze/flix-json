@@ -2,11 +2,16 @@ mod Json.Parse {
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     use Json.JsonElement;
     use Option.flatMap;
+    use Later.ImpureLazyList;
+    use Later.ImpureLazyList.uncons;
 
     // Each main rule must start with a key character and consume trailing whitespace
 
     type alias ParseMonad[t] = Option[(t, List[Char])]
 
+    type alias ParseMonad2[ef: Eff, t: Type] = Option[(t, ImpureLazyList[ef, Char])]
+
+    type alias InputStream[ef: Eff] = ImpureLazyList[ef, Char]
 
     ///
     /// Parses the given string into a JSON object.
@@ -28,11 +33,24 @@ mod Json.Parse {
         case _ :: _ => None
     }
 
+    def _eoi2(in: InputStream[ef]): ParseMonad2[ef, Unit] \ ef = match ImpureLazyList.head(in) {
+        case None => Some((), in)
+        case Some(_) => None
+    }
+
     def whitespace(in: List[Char]): ParseMonad[Unit] = match in {
         case ' ' :: tail => whitespace(tail)
         case '\t' :: tail => whitespace(tail)
         case '\r' :: tail => whitespace(tail)
         case '\n' :: tail => whitespace(tail)
+        case _ => Some((), in)
+    }
+
+    pub def whitespace2(in: InputStream[ef]): ParseMonad2[ef, Unit] \ ef = match uncons(in) {
+        case Some(' ', tail) => whitespace2(tail)
+        case Some('\t', tail) => whitespace2(tail)
+        case Some('\r', tail) => whitespace2(tail)
+        case Some('\n', tail) => whitespace2(tail)
         case _ => Some((), in)
     }
 
@@ -131,6 +149,11 @@ mod Json.Parse {
 
     def require(char: Char, in: List[Char]): ParseMonad[Unit] = match in {
         case head :: tail if char == head => Some((), tail)
+        case _ => None
+    }
+
+    pub def require2(char: Char, in: InputStream[ef]): ParseMonad2[ef, Unit] \ ef = match uncons(in) {
+        case Some(head, tail) if char == head => Some((), tail)
         case _ => None
     }
 
@@ -261,12 +284,26 @@ mod Json.Parse {
         case _ => None
     }
 
+    def number2(in: InputStream[ef]): ParseMonad2[ef, t] = match in {
+        case 
+    }
+
     def isNumberChar(c: Char): Bool = Char.isDigit(c) or c == '+' or c == '-' or c == 'e' or c == 'E' or c == '.'
 
     def numberTail(in: List[Char]): ParseMonad[List[Char]] = match in {
         case c :: tail if isNumberChar(c) =>
             for (
                 (chars, tail1) <- numberTail(tail)
+            ) yield {
+                (c :: chars, tail1)
+            }
+        case _ => Some(Nil, in)
+    }
+
+    pub def numberTail2(in: InputStream[ef]): ParseMonad2[ef, List[Char]] \ ef = match uncons(in) {
+        case Some((c, tail)) if isNumberChar(c) =>
+            for (
+                (chars, tail1) <- numberTail2(tail)
             ) yield {
                 (c :: chars, tail1)
             }
