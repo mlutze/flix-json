@@ -46,7 +46,7 @@ mod Json.Parse {
         case _ => Some((), in)
     }
 
-    def _whitespace2(in: InputStream[ef]): ParseMonad2[ef, Unit] \ ef = match uncons(in) {
+    pub def whitespace2(in: InputStream[ef]): ParseMonad2[ef, Unit] \ ef = match uncons(in) {
         case Some(' ', tail) => whitespace2(tail)
         case Some('\t', tail) => whitespace2(tail)
         case Some('\r', tail) => whitespace2(tail)
@@ -152,7 +152,7 @@ mod Json.Parse {
         case _ => None
     }
 
-    def require2(char: Char, in: InputStream[ef]): ParseMonad2[ef, Unit] \ ef = match uncons(in) {
+    pub def require2(char: Char, in: InputStream[ef]): ParseMonad2[ef, Unit] \ ef = match uncons(in) {
         case Some(head, tail) if char == head => Some((), tail)
         case _ => None
     }
@@ -284,12 +284,26 @@ mod Json.Parse {
         case _ => None
     }
 
+    def number2(in: InputStream[ef]): ParseMonad2[ef, t] = match in {
+        case 
+    }
+
     def isNumberChar(c: Char): Bool = Char.isDigit(c) or c == '+' or c == '-' or c == 'e' or c == 'E' or c == '.'
 
     def numberTail(in: List[Char]): ParseMonad[List[Char]] = match in {
         case c :: tail if isNumberChar(c) =>
             for (
                 (chars, tail1) <- numberTail(tail)
+            ) yield {
+                (c :: chars, tail1)
+            }
+        case _ => Some(Nil, in)
+    }
+
+    pub def numberTail2(in: InputStream[ef]): ParseMonad2[ef, List[Char]] \ ef = match uncons(in) {
+        case Some((c, tail)) if isNumberChar(c) =>
+            for (
+                (chars, tail1) <- numberTail2(tail)
             ) yield {
                 (c :: chars, tail1)
             }
