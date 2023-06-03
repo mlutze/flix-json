@@ -46,4 +46,9 @@ mod TestParse {
     def testUnicode01(): Bool = {
         parse("{\"key\": \"\\u0446\"}") == Some(JsonObject(Map#{"key" => JsonString("ц")}))
     }
+
+    @test
+    def testEscape01(): Bool = {
+        parse("{\"key\": \"\\a\"}") == None
+    }
 }

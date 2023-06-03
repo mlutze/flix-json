@@ -229,6 +229,9 @@ mod Json.Parse {
                 (char :: rest, tail2)
             }
 
+        // illegal escape
+        case '\\' :: _ => None
+
         case c :: tail =>
             for (
                 (rest, tail2) <- stringContents(tail)
