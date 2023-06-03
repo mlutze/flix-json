@@ -159,85 +159,45 @@ mod Json.Parse {
             StringBuilder.toString(sb)
     }
 
-    def stringContents(in: List[Char]): ParseMonad[List[Char]] = match in {
-        case '\"' :: _ => Some(Nil, in)
+    def stringContents(in: List[Char]): ParseMonad[List[Char]] = stringContentsHelper(Nil, in)
 
-        case '\\' :: '\"' :: tail =>
-            for (
-                (rest, tail2) <- stringContents(tail)
-            ) yield {
-                ('\"' :: rest, tail2)
-            }
+    def stringContentsHelper(acc: List[Char], in: List[Char]): ParseMonad[List[Char]] = match in {
+        case '\"' :: _ => Some(List.reverse(acc), in)
 
-        case '\\' :: '\\' :: tail =>
-            for (
-                (rest, tail2) <- stringContents(tail)
-            ) yield {
-                ('\\' :: rest, tail2)
-            }
+        case '\\' :: '\"' :: tail => stringContentsHelper('\"' :: acc, tail)
 
-        case '\\' :: '/' :: tail =>
-            for (
-                (rest, tail2) <- stringContents(tail)
-            ) yield {
-                ('/' :: rest, tail2)
-            }
+        case '\\' :: '\\' :: tail => stringContentsHelper('\\' :: acc, tail)
 
-        case '\\' :: 'b' :: tail =>
-            for (
-                (rest, tail2) <- stringContents(tail)
-            ) yield {
-                ('\u0008' :: rest, tail2)
-            }
+        case '\\' :: '/' :: tail => stringContentsHelper('/' :: acc, tail)
 
-        case '\\' :: 'f' :: tail =>
-            for (
-                (rest, tail2) <- stringContents(tail)
-            ) yield {
-                ('\u000C' :: rest, tail2)
-            }
+        case '\\' :: 'b' :: tail => stringContentsHelper('\u0008' :: acc, tail)
 
-        case '\\' :: 'n' :: tail =>
-            for (
-                (rest, tail2) <- stringContents(tail)
-            ) yield {
-                ('\n' :: rest, tail2)
-            }
+        case '\\' :: 'f' :: tail => stringContentsHelper('\u000C' :: acc, tail)
 
-        case '\\' :: 'r' :: tail =>
-            for (
-                (rest, tail2) <- stringContents(tail)
-            ) yield {
-                ('\r' :: rest, tail2)
-            }
+        case '\\' :: 'n' :: tail => stringContentsHelper('\n' :: acc, tail)
 
-        case '\\' :: 't' :: tail =>
-            for (
-                (rest, tail2) <- stringContents(tail)
-            ) yield {
-                ('\t' :: rest, tail2)
-            }
+        case '\\' :: 'r' :: tail => stringContentsHelper('\r' :: acc, tail)
+
+        case '\\' :: 't' :: tail => stringContentsHelper('\t' :: acc, tail)
 
         case '\\' :: 'u' :: c1 :: c2 :: c3 :: c4 :: tail =>
-            for (
-                (rest, tail2) <- stringContents(tail);
+            let charRes = for (
                 string <- listToString(c1 :: c2 :: c3 :: c4 :: Nil) |> Some;
                 intVal <- hexToInt(string)
             ) yield {
                 import static java.lang.Character.toChars(Int32): Array[Char, Static] \ IO;
-                let char = unchecked_cast(toChars(intVal) |> Array.get(0) as _ \ {});
-                (char :: rest, tail2)
+                unchecked_cast(toChars(intVal) |> Array.get(0) as _ \ {})
+            };
+            match charRes {
+                case None => None
+                case Some(char) => stringContentsHelper(char :: acc, tail)
             }
 
         // illegal escape
         case '\\' :: _ => None
 
-        case c :: tail =>
-            for (
-                (rest, tail2) <- stringContents(tail)
-            ) yield {
-                (c :: rest, tail2)
-            }
+        case c :: tail => stringContentsHelper(c :: acc, tail)
+
         // unexpected EOI
         case Nil => None
     }
