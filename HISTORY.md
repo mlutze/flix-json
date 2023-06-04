@@ -67,3 +67,6 @@
 
 ### v0.12.6
    * Update syntax to Flix v0.36.0
+
+### v0.12.7
+   * Improve performance on long strings
