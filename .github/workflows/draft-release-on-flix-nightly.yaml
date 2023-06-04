@@ -1,0 +1,41 @@
+name: Release a patch
+
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-java@v2.5.0
+        with:
+          java-version: 17
+          distribution: zulu
+      - uses: SebRollen/toml-action@v1.0.2
+        id: read_flix_version
+        with:
+          file: 'flix.toml'
+          field: 'package.flix'
+      - run: |
+          # download the latest nightly Flix JAR
+          url="https://flix.dev/nightly/flix-latest.jar"
+          curl -L -f "$url" > flix.jar
+
+          # run tests
+          java -jar flix.jar test --github-key ${{ github.token }}
+
+          # Build the package
+          java -jar flix.jar build-pkg
+      - uses: SebRollen/toml-action@v1.0.2
+        id: read_package_version
+        with:
+          file: 'flix.toml'
+          field: 'package.version'
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: true
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          tag_name: v${{ steps.read_package_version.outputs.value }}
+          files: artifact/*
