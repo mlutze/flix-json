@@ -70,3 +70,7 @@
 
 ### v0.12.7
    * Improve performance on long strings
+   * Disallow illegal escapes
+
+### v0.12.8
+   * Allow parsing any JSON element at the top level
