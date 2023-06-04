@@ -9,14 +9,14 @@ mod Json.Parse {
 
 
     ///
-    /// Parses the given string into a JSON object.
-    /// If the string does not represent an object, None is returned.
+    /// Parses the given string into a JSON element.
+    /// If the string does not represent a JSON element, None is returned.
     ///
     pub def parse(obj: String): Option[JsonElement] = {
         let in = String.toList(obj);
         for (
             (_, tail) <- whitespace(in);
-            (o, tail1) <- object_(tail);
+            (o, tail1) <- value(tail);
             _ <- eoi(tail1)
         ) yield {
             o
