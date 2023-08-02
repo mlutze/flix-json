@@ -115,10 +115,8 @@ mod Json.Parse {
                                                 case Some(_, tail3) => walk(tail3)
                                             }
                                         case _ => None }}};
-                match walk(in) {
-                    case None => None
-                    case Some(tl) => Some(MutList.toList(lst), tl)
-                }
+                for(tl <- walk(in))
+                    yield (MutList.toList(lst), tl)
             }
     }
 
