@@ -97,25 +97,28 @@ mod Json.Parse {
     def elements(in: List[Char]): ParseMonad[List[JsonElement]] = match in {
         case ']' :: _ => Some(Nil, in)
         case _ =>
-            for (
-                (val, tail) <- value(in);
-                (_, tail1) <- whitespace(tail);
-                res <- match tail1 {
-                    case ',' :: tail2 =>
-                        for (
-                            (_, tail3) <- whitespace(tail2);
-                            (rest, tail4) <- elements(tail3)
-                        ) yield {
-                            let list = val :: rest;
-                            (list, tail4)
-                        }
-                    case ']' :: _ =>
-                        let list = val :: Nil;
-                        Some(list, tail1)
-                    case _ => None
+            region rc {
+                let lst = MutList.new(rc);
+                def walk(input) =
+                    match value(input) {
+                        case None => None
+                        case Some(val, tail) =>
+                            MutList.push!(val, lst);
+                            match whitespace(tail) {
+                                case None => None
+                                case Some(_, tail1) =>
+                                    match tail1 {
+                                        case ']' :: _ => Some(tail1)
+                                        case ',' :: tail2 =>
+                                            match whitespace(tail2) {
+                                                case None => None
+                                                case Some(_, tail3) => walk(tail3)
+                                            }
+                                        case _ => None }}};
+                match walk(in) {
+                    case None => None
+                    case Some(tl) => Some(MutList.toList(lst), tl)
                 }
-            ) yield {
-                res
             }
     }
 
