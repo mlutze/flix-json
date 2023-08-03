@@ -52,15 +52,12 @@ mod TestParse {
         parse("{\"key\": \"\\a\"}") == None
     }
 
-    def parseArray(str: String, expected: List[Json.JsonElement]): Bool =
-        match parse(str) {
-            case Some(JsonArray(bigs)) => bigs == expected
-            case _ => false
-        }
+    def parseArrayCmp(str: String, expected: List[Json.JsonElement]): Bool =
+        parse(str) == Some(JsonArray(expected))
 
     @test
     def testShortArray(): Bool =
-        parseArray("[1, 2, 3]", JsonNumber(1ff)::JsonNumber(2ff)::JsonNumber(3ff)::Nil)
+        parseArrayCmp("[1, 2, 3]", JsonNumber(1ff)::JsonNumber(2ff)::JsonNumber(3ff)::Nil)
 
     @test
     def testLongArray(): Bool =
@@ -80,6 +77,6 @@ mod TestParse {
             loop(2);
             StringBuilder.append!("]", sb);
             let txt = StringBuilder.toString(sb);
-            parseArray(txt, MutList.toList(lst))
+            parseArrayCmp(txt, MutList.toList(lst))
         }
 }
