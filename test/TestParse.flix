@@ -52,41 +52,34 @@ mod TestParse {
         parse("{\"key\": \"\\a\"}") == None
     }
 
-    def toIntOpt(e:Json.JsonElement): Option[Int32] = match e {
-        case JsonNumber(b) => BigDecimal.tryToInt32(b)
-        case _ => None
-    }
-
-    def parseAndSum(str:String, len:Int32, result:Int32): Bool =
+    def parseArray(str: String, expected: List[Json.JsonElement]): Bool =
         match parse(str) {
-            case Some(JsonArray(bigs)) =>
-                let sumIsRight = match bigs |> List.traverse(toIntOpt) {
-                    case Some(ints) => List.sum(ints) == result
-                    case _ => false
-                };
-                List.length(bigs)==len and sumIsRight
+            case Some(JsonArray(bigs)) => bigs == expected
             case _ => false
         }
 
-
     @test
-    def testShortArray(): Bool = parseAndSum("[1, 2, 3]", 3, 6)
+    def testShortArray(): Bool =
+        parseArray("[1, 2, 3]", JsonNumber(1ff)::JsonNumber(2ff)::JsonNumber(3ff)::Nil)
 
     @test
     def testLongArray(): Bool =
         region rc {
             let sb = StringBuilder.new(rc);
+            let lst = MutList.new(rc);
             StringBuilder.append!("[1", sb);
+            MutList.push!(JsonNumber(1ff), lst);
             let mx = 60000;
             //[1, 2, 3, 4, ... mx-1]  a string 408887 chars long
-            def loop(n, acc) =
-                if (n >= mx) acc else {
+            def loop(n) =
+                if (n >= mx) () else {
                     StringBuilder.append!(", ${n}", sb);
-                    loop(n+1, acc + n)
+                    MutList.push!(JsonNumber(Int32.toBigDecimal(n)), lst);
+                    loop(n+1)
                 };
-            let result = loop(2, 1);
+            loop(2);
             StringBuilder.append!("]", sb);
             let txt = StringBuilder.toString(sb);
-            parseAndSum(txt, mx-1, result)
+            parseArray(txt, MutList.toList(lst))
         }
 }
