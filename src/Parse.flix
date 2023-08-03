@@ -114,7 +114,10 @@ mod Json.Parse {
                                                 case None => None
                                                 case Some(_, tail3) => walk(tail3)
                                             }
-                                        case _ => None }}};
+                                        case _ => None
+                                    }
+                            }
+                    };
                 for(tl <- walk(in))
                     yield (MutList.toList(lst), tl)
             }

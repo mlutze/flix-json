@@ -79,14 +79,14 @@ mod TestParse {
             StringBuilder.append!("[1", sb);
             let mx = 60000;
             //[1, 2, 3, 4, ... mx-1]  a string 408887 chars long
-            def loop(n) =
-                if (n >= mx) () else {
+            def loop(n, acc) =
+                if (n >= mx) acc else {
                     StringBuilder.append!(", ${n}", sb);
-                    loop(n+1)
+                    loop(n+1, acc + n)
                 };
-            loop(2);
+            let result = loop(2, 1);
             StringBuilder.append!("]", sb);
             let txt = StringBuilder.toString(sb);
-            parseAndSum(txt, mx-1, 1799970000)
+            parseAndSum(txt, mx-1, result)
         }
 }
