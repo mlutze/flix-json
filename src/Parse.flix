@@ -99,26 +99,27 @@ mod Json.Parse {
         case _ =>
             region rc {
                 let lst = MutList.new(rc);
-                def walk(input) =
-                    match value(input) {
+                def walk(input) = {
+                    let opt = forM(
+                        (val, tail) <- value(input);
+                        (_, tail1) <- whitespace(tail)
+                    ) yield (val, tail1);
+                    match opt {
                         case None => None
-                        case Some(val, tail) =>
+                        case Some(val, tail1) =>
                             MutList.push!(val, lst);
-                            match whitespace(tail) {
-                                case None => None
-                                case Some(_, tail1) =>
-                                    match tail1 {
-                                        case ']' :: _ => Some(tail1)
-                                        case ',' :: tail2 =>
-                                            match whitespace(tail2) {
-                                                case None => None
-                                                case Some(_, tail3) => walk(tail3)
-                                            }
-                                        case _ => None
+                            match tail1 {
+                                case ']' :: _ => Some(tail1)
+                                case ',' :: tail2 =>
+                                    match whitespace(tail2) {
+                                        case None => None
+                                        case Some(_, tail3) => walk(tail3)
                                     }
+                                case _ => None
                             }
-                    };
-                for(tl <- walk(in))
+                    }
+                };
+                forM(tl <- walk(in))
                     yield (MutList.toList(lst), tl)
             }
     }
