@@ -74,3 +74,6 @@
 
 ### v0.12.8
    * Allow parsing any JSON element at the top level
+
+### v0.12.9
+   * Use tail-recursive parsing for arrays
