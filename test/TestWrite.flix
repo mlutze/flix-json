@@ -49,37 +49,80 @@ mod TestWrite {
         def testEmptyObject01(): Bool = toPrettyString(2, JsonObject(Map#{})) == "{}"
 
         @test
-        def testSingletonString01(): Bool = toPrettyString(2, JsonObject(Map#{"key" => JsonString("value")})) == "{\n  \"key\": \"value\"\n}"
+        def testSingletonString01(): Bool = toPrettyString(2, JsonObject(Map#{"key" => JsonString("value")})) == String.intercalate(Environment.getLineSeparator(), List#{
+            "{",
+             "  \"key\": \"value\"",
+             "}"
+        })
 
         @test
-        def testSingletonString02(): Bool = toPrettyString(2, JsonObject(Map#{"key" => JsonString("\t")})) == "{\n  \"key\": \"\\t\"\n}"
+        def testSingletonString02(): Bool = toPrettyString(2, JsonObject(Map#{"key" => JsonString("\t")})) == String.intercalate(Environment.getLineSeparator(), List#{
+            "{",
+            "  \"key\": \"\\t\"",
+            "}"
+        })
 
         @test
-        def testSingletonString03(): Bool = toPrettyString(2, JsonObject(Map#{"key" => JsonString("!")})) == "{\n  \"key\": \"!\"\n}"
+        def testSingletonString03(): Bool = toPrettyString(2, JsonObject(Map#{"key" => JsonString("!")})) == String.intercalate(Environment.getLineSeparator(), List#{
+            "{",
+            "  \"key\": \"!\"",
+            "}"
+        })
 
         @test
         def testDoubleString01(): Bool = 
-            toPrettyString(2, JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")})) == "{\n  \"key1\": \"value1\",\n  \"key2\": \"value2\"\n}"
+            toPrettyString(2, JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")})) == String.intercalate(Environment.getLineSeparator(), List#{
+                "{",
+                "  \"key1\": \"value1\",",
+                "  \"key2\": \"value2\"", 
+                "}"
+            })
 
         @test
-        def testSingletonEmptyArray01(): Bool = toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Nil)})) == "{\n  \"key\": []\n}"
+        def testSingletonEmptyArray01(): Bool = toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Nil)})) == String.intercalate(Environment.getLineSeparator(), List#{
+            "{",
+            "  \"key\": []",
+            "}"
+        })
+
 
         @test
         def testSingletonSingletonArray01(): Bool = 
-            toPrettyString(2, JsonObject(Map#{"key" => JsonArray(JsonString("value") :: Nil)})) == "{\n  \"key\": [\n    \"value\"\n  ]\n}"
+            toPrettyString(2, JsonObject(Map#{"key" => JsonArray(JsonString("value") :: Nil)})) == String.intercalate(Environment.getLineSeparator(), List#{
+                "{",
+                "  \"key\": [",
+                "    \"value\"",
+                "  ]",
+                "}"
+            })
 
         @test 
         def testSingletonDoubleArray01(): Bool = 
-            toPrettyString(2, JsonObject(Map#{"key" => JsonArray(JsonString("v1") :: JsonString("v2") :: Nil)})) == "{\n  \"key\": [\n    \"v1\",\n    \"v2\"\n  ]\n}"
+            toPrettyString(2, JsonObject(Map#{"key" => JsonArray(JsonString("v1") :: JsonString("v2") :: Nil)})) == String.intercalate(Environment.getLineSeparator(), List#{
+                "{",
+                 "  \"key\": [",
+                 "    \"v1\",",
+                 "    \"v2\"",
+                 "  ]",
+                 "}"
+            })
 
         @test
         def testSingletonInt01(): Bool = {
-            toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(Int32.toBigDecimal(1))})) == "{\n  \"key\": 1\n}"
+            toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(Int32.toBigDecimal(1))})) == String.intercalate(Environment.getLineSeparator(), List#{
+                "{",
+                "  \"key\": 1",
+                "}"
+            })
         }
 
         @test
         def testSingletonFloat01(): Bool = {
-            toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(1.0ff)})) == "{\n  \"key\": 1.0\n}"
+            toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(1.0ff)})) == String.intercalate(Environment.getLineSeparator(), List#{
+                "{",
+                "  \"key\": 1.0",
+                "}"
+            })
         }
     }
 }
