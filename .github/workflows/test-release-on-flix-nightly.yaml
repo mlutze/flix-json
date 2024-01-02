@@ -17,7 +17,7 @@ jobs:
           git checkout "$tag"
       - uses: actions/setup-java@v2.5.0
         with:
-          java-version: 17
+          java-version: 21
           distribution: zulu
       - run: |
           # download the latest nightly Flix JAR
