@@ -98,7 +98,7 @@ mod Json.Parse {
         case ']' :: _ => Some(Nil, in)
         case _ =>
             region rc {
-                let lst = MutList.new(rc);
+                let lst = MutList.empty(rc);
                 def walk(input) = {
                     let opt = forM(
                         (val, tail) <- value(input);
@@ -159,7 +159,7 @@ mod Json.Parse {
     }
 
     def listToString(list: List[Char]): String = region r {
-            let sb = StringBuilder.new(r);
+            let sb = StringBuilder.empty(r);
             list |> List.forEach(c -> StringBuilder.append!(c, sb));
             StringBuilder.toString(sb)
     }
