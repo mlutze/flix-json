@@ -9,17 +9,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-java@v2.5.0
-        with:
-          java-version: 21
-          distribution: zulu
-      - run: |
-          # download the latest nightly Flix JAR
-          url="https://flix.dev/nightly/flix-latest.jar"
-          curl -L -f "$url" > flix.jar
-
-          # run tests
-          java -jar flix.jar test --github-token ${{ github.token }}
+      uses: mlutze/flix-action-templates@master
+      with:
+        flix: nightly
