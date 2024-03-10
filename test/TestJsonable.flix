@@ -90,7 +90,7 @@ mod TestJsonable {
     pub def testMap02(): Bool = testRoundTrip(Map#{"hi there" => Map#{"bye there" => 43i8}, "blah?" => Map#{"blah" => 99i8}})
 
     @test
-    pub def testOption01(): Bool = testRoundTrip(None: Option[String])
+    pub def testOption01(): Bool = testRoundTrip((None: Option[String]))
 
     @test
     pub def testOption02(): Bool = testRoundTrip(Some("hello"))
@@ -108,7 +108,7 @@ mod TestJsonable {
     pub def testJsonElement01(): Bool = testRoundTrip(JsonString("howdy"))
 
     @test
-    pub def testNullable01(): Bool = fromNullableJson(JsonNull) == Ok(None: Option[String])
+    pub def testNullable01(): Bool = fromNullableJson(JsonNull) == Ok((None: Option[String]))
 
     @test
     pub def testNullable02(): Bool = fromNullableJson(JsonString("hello")) == Ok(Some("hello"))
