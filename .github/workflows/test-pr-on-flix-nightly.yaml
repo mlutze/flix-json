@@ -9,6 +9,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-      uses: mlutze/flix-action-templates/.github/workflows/flix-test.yaml@master
-      with:
-        flix: nightly
+    uses: mlutze/flix-action-templates/.github/workflows/flix-test.yaml@master
+    with:
+      flix: nightly
