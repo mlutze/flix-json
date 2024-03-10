@@ -62,8 +62,8 @@ mod TestParse {
     @test
     def testLongArray(): Bool =
         region rc {
-            let sb = StringBuilder.new(rc);
-            let lst = MutList.new(rc);
+            let sb = StringBuilder.empty(rc);
+            let lst = MutList.empty(rc);
             StringBuilder.append!("[1", sb);
             MutList.push!(JsonNumber(1ff), lst);
             let mx = 60000;
