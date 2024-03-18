@@ -14,7 +14,7 @@ mod Json.Parse {
     ///
     pub def parse(obj: String): Option[JsonElement] = {
         let in = String.toList(obj);
-        for (
+        forM (
             (_, tail) <- whitespace(in);
             (o, tail1) <- value(tail);
             _ <- eoi(tail1)
@@ -37,7 +37,7 @@ mod Json.Parse {
     }
 
     def object_(in: List[Char]): ParseMonad[JsonElement] = {
-        for (
+        forM (
             (_, tail) <- require('{', in);
             (_, tail1) <- whitespace(tail);
             (keyVals, tail2) <- keyVals(tail1);
@@ -52,7 +52,7 @@ mod Json.Parse {
     def keyVals(in: List[Char]): ParseMonad[List[(String, JsonElement)]] = match in {
         // Case 1: starting a keyval pair
         case '\"' :: _ =>
-            for (
+            forM (
                 (key, tail) <- string(in);
                 (_, tail1) <- whitespace(tail);
                 (_, tail2) <- require(':', tail1);
@@ -60,7 +60,7 @@ mod Json.Parse {
                 (val, tail4) <- value(tail3);
                 (_, tail5) <- whitespace(tail4);
                 res <- match tail5 {
-                    case ',' :: tail6 => for (
+                    case ',' :: tail6 => forM (
                             (_, tail7) <- whitespace(tail6);
                             (tailKeyVals, tail8) <- keyVals(tail7)
                         ) yield {
@@ -84,7 +84,7 @@ mod Json.Parse {
     }
 
     def array(in: List[Char]): ParseMonad[JsonElement] = {
-        for (
+        forM (
             (_, tail) <- require('[', in);
             (_, tail1) <- whitespace(tail);
             (elems, tail2) <- elements(tail1);
@@ -140,7 +140,7 @@ mod Json.Parse {
     }
 
     def stringValue(in: List[Char]): ParseMonad[JsonElement] = {
-        for (
+        forM (
             (str, tail) <- string(in)
         ) yield {
             (JsonString(str), tail)
@@ -148,7 +148,7 @@ mod Json.Parse {
     }
 
     def string(in: List[Char]): ParseMonad[String] = {
-        for (
+        forM (
             (_, tail) <- require('\"', in);
             (contents, tail2) <- stringContents(tail);
             (_, tail3) <- require('\"', tail2)
@@ -186,7 +186,7 @@ mod Json.Parse {
         case '\\' :: 't' :: tail => stringContentsHelper('\t' :: acc, tail)
 
         case '\\' :: 'u' :: c1 :: c2 :: c3 :: c4 :: tail =>
-            let charRes = for (
+            let charRes = forM (
                 string <- listToString(c1 :: c2 :: c3 :: c4 :: Nil) |> Some;
                 intVal <- hexToInt(string)
             ) yield {
@@ -218,7 +218,7 @@ mod Json.Parse {
 
     def number(in: List[Char]): ParseMonad[JsonElement] = match in {
         case c :: tail if isNumberChar(c) =>
-            for (
+            forM (
                 (chars, tail1) <- numberTail(tail);
                 string <- listToString(c :: chars) |> Some;
                 bigDec <- BigDecimal.fromString(string)
@@ -233,7 +233,7 @@ mod Json.Parse {
 
     def numberTail(in: List[Char]): ParseMonad[List[Char]] = match in {
         case c :: tail if isNumberChar(c) =>
-            for (
+            forM (
                 (chars, tail1) <- numberTail(tail)
             ) yield {
                 (c :: chars, tail1)

@@ -56,7 +56,7 @@ mod Json.Path {
         match p {
             case Root => Some(json)
             case AtIndex(root, i) =>
-                for (
+                forM (
                     next <- apply(root, json);
                     res <- match next {
                             case JsonArray(l) => nth(i, l)
@@ -66,7 +66,7 @@ mod Json.Path {
                     res
                 }
             case (AtKey(root, key)) =>
-                for (
+                forM (
                     next <- apply(root, json);
                     res <- match next {
                             case JsonObject(o) => Map.get(key, o)
@@ -87,3 +87,4 @@ mod Json.Path {
         case _ => None
     }
 }
+
