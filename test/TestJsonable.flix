@@ -125,7 +125,7 @@ mod TestJsonable {
     instance FromJson[Thing] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Thing] = {
             use Result.flatMap;
-            for (
+            forM (
                 map <- fromJsonAt(p, x);
                 name <- getAtKey(p, "name", map);
                 age <- getAtKey(p, "age", map)
@@ -156,7 +156,7 @@ mod TestJsonable {
 
     instance FromJson[Thing2] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Thing2] = {
-            for (
+            forM (
                 obj <- fromJsonAt(p, x);
                 name <- getAtKey(p, "name", obj);
                 age <- getAtKeyOpt(p, "age", obj)

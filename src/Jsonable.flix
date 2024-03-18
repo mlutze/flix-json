@@ -6,11 +6,11 @@ mod Json {
 
     pub enum JsonError(Path, Set[String]) with Eq
 
-    pub class ToJson[a] {
+    pub trait ToJson[a] {
         pub def toJson(x: a): JsonElement
     }
 
-    pub class FromJson[a] {
+    pub trait FromJson[a] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, a]
         pub def fromJson(x: JsonElement): Result[JsonError, a] = Json.FromJson.fromJsonAt(Path.Root, x)
         pub def fromNullableJsonAt(p: Path, x: JsonElement): Result[JsonError, Option[a]] = match x {
@@ -22,7 +22,7 @@ mod Json {
         pub def fromNullableJson(x: JsonElement): Result[JsonError, Option[a]] = Json.FromJson.fromNullableJsonAt(Path.Root, x)
     }
 
-    pub lawful class Jsonable[a] with ToJson[a], FromJson[a] {
+    pub lawful trait Jsonable[a] with ToJson[a], FromJson[a] {
         law inverse: forall (x: a) with Eq[a] . (x |> Json.ToJson.toJson |> Json.FromJson.fromJson == Ok(x))
     }
 
@@ -42,7 +42,7 @@ mod Json {
     instance ToJson[Char] {
         pub def toJson(x: Char): JsonElement = JsonString(Char.toString(x))
     }
-    
+
     instance FromJson[Char] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Char] = match x {
             case JsonString(y) if String.length(y) > 0 => Ok(String.charAt(0, y))
@@ -71,7 +71,7 @@ mod Json {
             }
         }
     }
-    
+
     instance FromJson[Float32] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Float32] = match x {
             case JsonNumber(y) => BigDecimal.tryToFloat32(y) |> Option.toOk(JsonError(p, Set#{"floating-point number", "\"-Infinity\"", "\"Infinity\"", "\"NaN\""}))
@@ -130,7 +130,7 @@ mod Json {
             JsonNumber(Int8.toBigDecimal(x))
         }
     }
-    
+
     instance FromJson[Int8] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Int8] = match x {
             case JsonNumber(y) => BigDecimal.tryToInt8(y) |> Option.toOk(JsonError(p, Set#{"8-bit integer"}))
@@ -139,13 +139,13 @@ mod Json {
     }
 
     instance Jsonable[Int8]
-    
+
     instance ToJson[Int16] {
         pub def toJson(x: Int16): JsonElement = {
             JsonNumber(Int16.toBigDecimal(x))
         }
     }
-    
+
     instance FromJson[Int16] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Int16] = match x {
             case JsonNumber(y) => BigDecimal.tryToInt16(y) |> Option.toOk(JsonError(p, Set#{"16-bit integer"}))
@@ -168,8 +168,8 @@ mod Json {
         }
     }
 
-    instance Jsonable[Int32] 
-    
+    instance Jsonable[Int32]
+
     instance ToJson[Int64] {
         pub def toJson(x: Int64): JsonElement = {
             JsonNumber(Int64.toBigDecimal(x))
@@ -244,9 +244,9 @@ mod Json {
             case JsonObject(m0) =>
                 use Result.flatMap;
                 let l0 = Map.toList(m0);
-                for (
-                    l <- l0 |> Result.traverse(match (k0, v0) -> 
-                    for (
+                forM (
+                    l <- l0 |> Result.traverse(match (k0, v0) ->
+                    forM (
                         k <- FromString.fromString(k0) |> Option.toOk(JsonError(p !! k0, Set#{"valid key"}));
                         v <- Json.FromJson.fromJsonAt(p !! k0, v0)
                     ) yield {
@@ -272,7 +272,7 @@ mod Json {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Option[a]] = match x {
             case JsonArray(Nil) => Ok(None)
             case JsonArray(y0 :: Nil) =>
-                for (
+                forM (
                     y <- Json.FromJson.fromJsonAt(p, y0)
                 ) yield {
                     Some(y)
@@ -294,11 +294,11 @@ mod Json {
 
     instance FromJson[(a, b)] with FromJson[a], FromJson[b] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b)] = {
-            for (
+            forM (
                 l <- Json.FromJson.fromJsonAt(p, x);
                 res <- match l {
                     case a :: b :: Nil =>
-                        for (
+                        forM (
                             resA <- Json.FromJson.fromJsonAt(p !! 0, a);
                             resB <- Json.FromJson.fromJsonAt(p !! 1, b)
                         ) yield {
@@ -327,11 +327,11 @@ mod Json {
 
     instance FromJson[(a, b, c)] with FromJson[a], FromJson[b], FromJson[c] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b, c)] = {
-            for (
+            forM (
                 l <- Json.FromJson.fromJsonAt(p, x);
                 res <- match l {
                     case a :: b :: c :: Nil =>
-                        for (
+                        forM (
                             resA <- Json.FromJson.fromJsonAt(p !! 0, a);
                             resB <- Json.FromJson.fromJsonAt(p !! 1, b);
                             resC <- Json.FromJson.fromJsonAt(p !! 2, c)
@@ -362,11 +362,11 @@ mod Json {
 
     instance FromJson[(a, b, c, d)] with FromJson[a], FromJson[b], FromJson[c], FromJson[d] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b, c, d)] = {
-            for (
+            forM (
                 l <- Json.FromJson.fromJsonAt(p, x);
                 res <- match l {
                     case a :: b :: c :: d :: Nil =>
-                        for (
+                        forM (
                             resA <- Json.FromJson.fromJsonAt(p !! 0, a);
                             resB <- Json.FromJson.fromJsonAt(p !! 1, b);
                             resC <- Json.FromJson.fromJsonAt(p !! 2, c);
@@ -407,7 +407,7 @@ mod Json {
         match Map.get("${key}", m) {
             case None => Ok(None)
             case Some(val) =>
-                for (
+                forM (
                     res <- Json.FromJson.fromJsonAt(p !! "${key}", val)
                 ) yield {
                     Some(res)
