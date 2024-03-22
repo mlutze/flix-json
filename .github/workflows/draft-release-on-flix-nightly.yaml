@@ -26,16 +26,5 @@ jobs:
 
           # Build the package
           java -jar flix.jar build-pkg
-      - uses: SebRollen/toml-action@v1.0.2
-        id: read_package_version
-        with:
-          file: 'flix.toml'
-          field: 'package.version'
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          draft: true
-          generate_release_notes: true
-          fail_on_unmatched_files: true
-          tag_name: v${{ steps.read_package_version.outputs.value }}
-          files: artifact/*
+      - run: |
+          java -jar flix.jar release --yes --github-token ${{ github.token }}
