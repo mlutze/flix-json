@@ -1,6 +1,6 @@
 [package]
 name        = "flix-json"
-version     = "0.12.10"
+version     = "0.12.11"
 flix        = "0.44.0"
 description = "Flix library for reading and writing JSON"
 authors     = ["Matthew Lutze"]
