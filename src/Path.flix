@@ -22,7 +22,7 @@ mod Json.Path {
         }
     }
 
-    sealed class Appendable[a] {
+    sealed trait Appendable[a] {
         pub def append(x: a, p: Path): Path
     }
 
