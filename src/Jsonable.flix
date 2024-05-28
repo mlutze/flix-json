@@ -23,7 +23,9 @@ mod Json {
     }
 
     pub lawful trait Jsonable[a] with ToJson[a], FromJson[a] {
-        law inverse: forall (x: a) with Eq[a] . (x |> Json.ToJson.toJson |> Json.FromJson.fromJson == Ok(x))
+        law inverse: forall (x: a) with Eq[a] {
+            x |> Json.ToJson.toJson |> Json.FromJson.fromJson == Ok(x)
+        }
     }
 
     instance ToJson[Bool] {
