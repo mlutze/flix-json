@@ -1,4 +1,8 @@
 mod Json.Parse {
+    import java.lang.NumberFormatException
+    import java.lang.Integer
+    import java.lang.Character
+
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     use Json.JsonElement;
     use Option.flatMap;
@@ -190,8 +194,7 @@ mod Json.Parse {
                 string <- listToString(c1 :: c2 :: c3 :: c4 :: Nil) |> Some;
                 intVal <- hexToInt(string)
             ) yield {
-                import static java.lang.Character.toChars(Int32): Array[Char, Static] \ IO;
-                unchecked_cast(toChars(intVal) |> Array.get(0) as _ \ {})
+                unsafe Character.toChars(intVal) |> Array.get(0)
             };
             match charRes {
                 case None => None
@@ -208,12 +211,11 @@ mod Json.Parse {
     }
 
     def hexToInt(hex: String): Option[Int32] = {
-        import static java.lang.Integer.parseInt(String, Int32): Int32 \ IO;
-        unchecked_cast(try {
-            Some(parseInt(hex, 16))
+        try {
+            unsafe Some(Integer.parseInt(hex, 16))
         } catch {
-            case _: ##java.lang.NumberFormatException => None
-        } as _ \ {})
+            case _: NumberFormatException => None
+        }
     }
 
     def number(in: List[Char]): ParseMonad[JsonElement] = match in {
