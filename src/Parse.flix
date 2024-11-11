@@ -111,7 +111,7 @@ mod Json.Parse {
                     match opt {
                         case None => None
                         case Some(val, tail1) =>
-                            MutList.push!(val, lst);
+                            MutList.push(val, lst);
                             match tail1 {
                                 case ']' :: _ => Some(tail1)
                                 case ',' :: tail2 =>
