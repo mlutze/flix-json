@@ -64,18 +64,18 @@ mod TestParse {
         region rc {
             let sb = StringBuilder.empty(rc);
             let lst = MutList.empty(rc);
-            StringBuilder.append!("[1", sb);
+            StringBuilder.append("[1", sb);
             MutList.push(JsonNumber(1ff), lst);
             let mx = 60000;
             //[1, 2, 3, 4, ... mx-1]  a string 408887 chars long
             def loop(n) =
                 if (n >= mx) () else {
-                    StringBuilder.append!(", ${n}", sb);
+                    StringBuilder.append(", ${n}", sb);
                     MutList.push(JsonNumber(Int32.toBigDecimal(n)), lst);
                     loop(n+1)
                 };
             loop(2);
-            StringBuilder.append!("]", sb);
+            StringBuilder.append("]", sb);
             let txt = StringBuilder.toString(sb);
             parseArrayCmp(txt, MutList.toList(lst))
         }
