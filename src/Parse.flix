@@ -164,7 +164,7 @@ mod Json.Parse {
 
     def listToString(list: List[Char]): String = region r {
             let sb = StringBuilder.empty(r);
-            list |> List.forEach(c -> StringBuilder.append!(c, sb));
+            list |> List.forEach(c -> StringBuilder.append(c, sb));
             StringBuilder.toString(sb)
     }
 
