@@ -28,7 +28,7 @@ mod Json.Parse {
     }
 
     def eoi(in: List[Char]): ParseMonad[Unit] = match in {
-        case Nil => Some((), Nil)
+        case Nil => Some(((), Nil))
         case _ :: _ => None
     }
 
@@ -37,7 +37,7 @@ mod Json.Parse {
         case '\t' :: tail => whitespace(tail)
         case '\r' :: tail => whitespace(tail)
         case '\n' :: tail => whitespace(tail)
-        case _ => Some((), in)
+        case _ => Some(((), in))
     }
 
     def object_(in: List[Char]): ParseMonad[JsonElement] = {
@@ -73,7 +73,7 @@ mod Json.Parse {
                         }
                     case '}' :: _ =>
                         let list = (key, val) :: Nil;
-                        Some(list, tail5)
+                        Some((list, tail5))
                     case _ => None
                 }
             ) yield {
@@ -81,7 +81,7 @@ mod Json.Parse {
             }
 
         // Case 2: end of list
-        case '}' :: _ => Some(Nil, in)
+        case '}' :: _ => Some((Nil, in))
 
         // Case 3: anything else is an error
         case _ => None
@@ -99,7 +99,7 @@ mod Json.Parse {
     }
 
     def elements(in: List[Char]): ParseMonad[List[JsonElement]] = match in {
-        case ']' :: _ => Some(Nil, in)
+        case ']' :: _ => Some((Nil, in))
         case _ =>
             region rc {
                 let lst = MutList.empty(rc);
@@ -110,14 +110,14 @@ mod Json.Parse {
                     ) yield (val, tail1);
                     match opt {
                         case None => None
-                        case Some(val, tail1) =>
+                        case Some((val, tail1)) =>
                             MutList.push(val, lst);
                             match tail1 {
                                 case ']' :: _ => Some(tail1)
                                 case ',' :: tail2 =>
                                     match whitespace(tail2) {
                                         case None => None
-                                        case Some(_, tail3) => walk(tail3)
+                                        case Some((_, tail3)) => walk(tail3)
                                     }
                                 case _ => None
                             }
@@ -132,14 +132,14 @@ mod Json.Parse {
         case '{' :: _ => object_(in)
         case '[' :: _ => array(in)
         case '\"' :: _ => stringValue(in)
-        case 't' :: 'r' :: 'u' :: 'e' :: tail => Some(JsonBool(true), tail)
-        case 'f' :: 'a' :: 'l' :: 's' :: 'e' :: tail => Some(JsonBool(false), tail)
-        case 'n' :: 'u' :: 'l' :: 'l' :: tail => Some(JsonNull, tail)
+        case 't' :: 'r' :: 'u' :: 'e' :: tail => Some((JsonBool(true), tail))
+        case 'f' :: 'a' :: 'l' :: 's' :: 'e' :: tail => Some((JsonBool(false), tail))
+        case 'n' :: 'u' :: 'l' :: 'l' :: tail => Some((JsonNull, tail))
         case _ => number(in)
     }
 
     def require(char: Char, in: List[Char]): ParseMonad[Unit] = match in {
-        case head :: tail if char == head => Some((), tail)
+        case head :: tail if char == head => Some(((), tail))
         case _ => None
     }
 
@@ -171,7 +171,7 @@ mod Json.Parse {
     def stringContents(in: List[Char]): ParseMonad[List[Char]] = stringContentsHelper(Nil, in)
 
     def stringContentsHelper(acc: List[Char], in: List[Char]): ParseMonad[List[Char]] = match in {
-        case '\"' :: _ => Some(List.reverse(acc), in)
+        case '\"' :: _ => Some((List.reverse(acc), in))
 
         case '\\' :: '\"' :: tail => stringContentsHelper('\"' :: acc, tail)
 
@@ -240,7 +240,7 @@ mod Json.Parse {
             ) yield {
                 (c :: chars, tail1)
             }
-        case _ => Some(Nil, in)
+        case _ => Some((Nil, in))
     }
 
 }
