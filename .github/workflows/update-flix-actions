@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Go through all the actions in the current directory.
+for action in *.yaml; do
+    case "$(head "$action" -n 1)" in
+        # If it's an action with the UPDATE_VIA_SCRIPT header, then we try to update it.
+        *UPDATE_VIA_SCRIPT*)
+        >&2 echo "Updating $action"
+        gh api -H 'accept: application/vnd.github.v3.raw' "repos/mlutze/flix-action-templates/contents/$action" > "$action"
+        ;;
+        *)
+        >&2 echo "Skipping untagged $action"
+        # Otherwise skip it.
+        ;;
+    esac
+done
