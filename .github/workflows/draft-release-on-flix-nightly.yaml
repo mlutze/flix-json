@@ -13,11 +13,6 @@ jobs:
         with:
           java-version: 21
           distribution: zulu
-      - uses: SebRollen/toml-action@v1.0.2
-        id: read_flix_version
-        with:
-          file: 'flix.toml'
-          field: 'package.flix'
       - run: |
           # download the latest nightly Flix JAR
           url="https://flix.dev/nightly/flix-latest.jar"
