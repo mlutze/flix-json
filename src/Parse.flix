@@ -194,7 +194,7 @@ mod Json.Parse {
                 string <- listToString(c1 :: c2 :: c3 :: c4 :: Nil) |> Some;
                 intVal <- hexToInt(string)
             ) yield {
-                unsafe Character.toChars(intVal) |> Array.get(0)
+                Character.toChars(intVal) |> Array.get(0)
             };
             match charRes {
                 case None => None
@@ -212,7 +212,7 @@ mod Json.Parse {
 
     def hexToInt(hex: String): Option[Int32] = {
         try {
-            unsafe Some(Integer.parseInt(hex, 16))
+            Some(Integer.parseInt(hex, 16))
         } catch {
             case _: NumberFormatException => None
         }
