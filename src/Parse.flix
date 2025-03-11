@@ -212,7 +212,7 @@ mod Json.Parse {
 
     def hexToInt(hex: String): Option[Int32] = {
         try {
-            unsafe Some(Integer.parseInt(hex, 16))
+            Some(Integer.parseInt(hex, 16))
         } catch {
             case _: NumberFormatException => None
         }
