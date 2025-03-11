@@ -194,7 +194,7 @@ mod Json.Parse {
                 string <- listToString(c1 :: c2 :: c3 :: c4 :: Nil) |> Some;
                 intVal <- hexToInt(string)
             ) yield {
-                Character.toChars(intVal) |> Array.get(0)
+                unsafe Character.toChars(intVal) |> Array.get(0)
             };
             match charRes {
                 case None => None
