@@ -47,3 +47,31 @@ enum Contact({
     phone = String
 })
 ```
+
+To convert from JSON to our enum,
+we need to define a `FromJson` instance for our data types.
+
+```scala
+instance FromJson[Contact] {
+  pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Contact] = {
+    for {
+      map <- fromJsonAt(p, x);
+      email <- getAtKey(p, "email", map);
+      phone <- getAtKey(p, "phone", map)
+    } yield {
+      Contact({ email = email, phone = phone })
+    }
+  }
+}
+```
+
+The `FromJson` trait has one required signature, `fromJsonAt`.
+It takes two parameters:
+- A `Path` representing the path in the JSON tree we have traversed so far. This is used for reporting errors.
+- A `JsonElement` as the input.
+In the implementation, we make use of two functions:
+- `Jsonable.fromJsonAt`, to convert the `JsonElement` into a map for easier manipulation
+- `Jsonable.getAtKey` to extract fields from the map
+
+We don't need to say what types we expect from the JsonElement due to type inference.
+The types in the `Contact` constructor ensure the right types are expected at runtime.
