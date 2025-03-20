@@ -69,6 +69,7 @@ The `FromJson` trait has one required signature, `fromJsonAt`.
 It takes two parameters:
 - A `Path` representing the path in the JSON tree we have traversed so far. This is used for reporting errors.
 - A `JsonElement` as the input.
+
 In the implementation, we make use of two functions:
 - `Jsonable.fromJsonAt`, to convert the `JsonElement` into a map for easier manipulation
 - `Jsonable.getAtKey` to extract fields from the map
