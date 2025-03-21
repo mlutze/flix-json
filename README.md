@@ -51,6 +51,8 @@ enum Contact({
 To convert from JSON to our enum,
 we need to define a `FromJson` instance for our data types.
 
+First, `Contact`:
+
 ```scala
 instance FromJson[Contact] {
   pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Contact] = {
@@ -76,3 +78,29 @@ In the implementation, we make use of two functions:
 
 We don't need to say what types we expect from the JsonElement due to type inference.
 The types in the `Contact` constructor ensure the right types are expected at runtime.
+
+The `Person` instance will make use of the `Contact` instance:
+
+```scala
+instance FromJson[Contact] {
+  pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Contact] = {
+    for {
+      map <- fromJsonAt(p, x);
+      name <- getAtKey(p, "name", map);
+      age <- getAtKey(p, "age", map);
+      addressMap <- getAtKey(p, "address", map);
+      city <- getAtKey(p !! "address", "city", map);
+      zip <- getAtKey(p !! "address", "zip", map);
+      contact <- getAtKey(p, "contact", map)
+    } yield {
+      Person({
+        name = name,
+        age = age,
+        city = city,
+        zip = zip,
+        contact = contact
+      })
+    }
+  }
+}
+```
