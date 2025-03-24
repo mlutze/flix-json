@@ -89,8 +89,8 @@ instance FromJson[Contact] {
       name <- getAtKey(p, "name", map);
       age <- getAtKey(p, "age", map);
       addressMap <- getAtKey(p, "address", map);
-      city <- getAtKey(p !! "address", "city", map);
-      zip <- getAtKey(p !! "address", "zip", map);
+      city <- getAtKey(p !! "address", "city", addressMap);
+      zip <- getAtKey(p !! "address", "zip", addressMap);
       contact <- getAtKey(p, "contact", map)
     } yield {
       Person({
@@ -104,3 +104,12 @@ instance FromJson[Contact] {
   }
 }
 ```
+
+The "city" and "zip" fields are nested in the JSON representation,
+but are not nested in the Flix representation.
+When extracting them from the JSON,
+we first extract the nested object as `addressMap`,
+then access each field from that map.
+We append `"address"` to the path parameter,
+which ensures proper error messages
+in case the JSON does not match what we expect.
