@@ -397,6 +397,12 @@ mod Json {
 
     instance Jsonable[JsonElement]
 
+    ///
+    /// Returns the value associated with the given key in the given map.
+    ///
+    /// If the key is not present or has the wrong type,
+    /// then returns an error associated with the given path.
+    ///
     pub def getAtKey(p: Path, key: k, m: Map[String, JsonElement]): Result[JsonError, v] with ToString[k], FromJson[v] = {
         match Map.get("${key}", m) {
             case None => Err(JsonError(p, Set#{"object with key '${key}'"}))
@@ -404,6 +410,13 @@ mod Json {
         }
     }
 
+    ///
+    /// Returns the value associated with the given key in the given map.
+    ///
+    /// If the key is not present, then returns None.
+    /// If the key is present but has the wrong type,
+    /// then returns an error associated with the given path.
+    ///
     pub def getAtKeyOpt(p: Path, key: k, m: Map[String, JsonElement]): Result[JsonError, Option[v]] with ToString[k], FromJson[v] = {
         use Result.flatMap;
         match Map.get("${key}", m) {
