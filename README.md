@@ -55,15 +55,15 @@ First, `Contact`:
 
 ```scala
 instance FromJson[Contact] {
-  pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Contact] = {
-    for {
-      map <- fromJsonAt(p, x);
-      email <- getAtKey(p, "email", map);
-      phone <- getAtKey(p, "phone", map)
-    } yield {
-      Contact({ email = email, phone = phone })
+    pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Contact] = {
+        forM (
+            map <- fromJsonAt(p, x);
+            email <- getAtKey(p, "email", map);
+            phone <- getAtKey(p, "phone", map)
+        ) yield {
+            Contact.Contact({ email = email, phone = phone })
+        }
     }
-  }
 }
 ```
 
@@ -82,26 +82,26 @@ The types in the `Contact` constructor ensure the right types are expected at ru
 The `Person` instance will make use of the `Contact` instance:
 
 ```scala
-instance FromJson[Contact] {
-  pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Contact] = {
-    for {
-      map <- fromJsonAt(p, x);
-      name <- getAtKey(p, "name", map);
-      age <- getAtKey(p, "age", map);
-      addressMap <- getAtKey(p, "address", map);
-      city <- getAtKey(p !! "address", "city", addressMap);
-      zip <- getAtKey(p !! "address", "zip", addressMap);
-      contact <- getAtKey(p, "contact", map)
-    } yield {
-      Person({
-        name = name,
-        age = age,
-        city = city,
-        zip = zip,
-        contact = contact
-      })
+instance FromJson[Person] {
+    pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Person] = {
+        forM (
+            map <- fromJsonAt(p, x);
+            name <- getAtKey(p, "name", map);
+            age <- getAtKey(p, "age", map);
+            addressMap <- getAtKey(p, "address", map);
+            city <- getAtKey(p !! "address", "city", addressMap);
+            zip <- getAtKey(p !! "address", "zip", addressMap);
+            contact <- getAtKey(p, "contact", map)
+        ) yield {
+            Person.Person({
+                name = name,
+                age = age,
+                city = city,
+                zip = zip,
+                contact = contact
+            })
+        }
     }
-  }
 }
 ```
 
