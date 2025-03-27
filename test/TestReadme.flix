@@ -1,4 +1,5 @@
 mod TestReadme {
+    use Json.ToJson
     use Json.FromJson;
     use Json.FromJson.fromJsonAt;
     use Json.Path.Path;
@@ -55,6 +56,36 @@ mod TestReadme {
             }
         }
     }
+
+    instance ToJson[Contact] {
+        pub def toJson(x: Contact): JsonElement = {
+            let Contact.Contact(record) = x;
+            let map = Map#{
+                "email" => record#email,
+                "phone" => record#phone
+            };
+            ToJson.toJson(map)
+        }
+    }
+
+    instance ToJson[Person] {
+        pub def toJson(x: Person): JsonElement = {
+            let Person.Person(record) = x;
+            let addressMap = Map#{
+                "city" => record#city,
+                "zip" => record#zip
+            };
+            let map = Map#{
+                "name" => ToJson.toJson(record#name),
+                "age" => ToJson.toJson(record#age),
+                "address" => ToJson.toJson(addressMap),
+                "contact" => ToJson.toJson(record#contact)
+            };
+            ToJson.toJson(map)
+        }
+    }
+    
+    
 
     @test
     def testReadmeParse(): Bool = {
