@@ -113,3 +113,58 @@ then access each field from that map.
 We append `"address"` to the path parameter,
 which ensures proper error messages
 in case the JSON does not match what we expect.
+
+### Writing
+
+To convert a Flix data type to JSON,
+we just need to define a `ToJson` instance for it.
+First, `Contact`:
+
+```scala
+instance ToJson[Contact] {
+    pub def toJson(x: Contact): JsonElement = {
+        let Contact.Contact(record) = x;
+        let map = Map#{
+            "email" => record#email,
+            "phone" => record#phone
+        };
+        ToJson.toJson(map)
+    }
+}
+```
+
+Here, we do the opposite of what we did before.
+We just construct a map and put the fields in it.
+Then we convert the map to a JSON element.
+
+We can do the same with `Person`.
+
+```
+instance ToJson[Person] {
+    pub def toJson(x: Person): JsonElement = {
+        let Person.Person(record) = x;
+        let addressMap = Map#{
+            "city" => record#city,
+            "zip" => record#zip
+        };
+        let map = Map#{
+            "name" => ToJson.toJson(record#name),
+            "age" => ToJson.toJson(record#age),
+            "address" => ToJson.toJson(addressMap),
+            "contact" => ToJson.toJson(record#contact)
+        };
+        ToJson.toJson(map)
+    }
+}
+```
+
+This mirrors what we did for `FromJson`.
+We constructed a separate `addressMap`
+since that's present in the JSON
+but not in the data definition.
+We had to call `toJson` on all the fields as we built the map,
+because not all the fields have the same type.
+
+These classes give us a `JsonElement`.
+We can convert the result to a string by using
+`Json.Write.toCompactString` or `Json.Write.toPrettyString`.
