@@ -45,34 +45,34 @@ mod TestWrite {
         use Json.Write.toPrettyString
         use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
-        def getLineSeparator(): String \ IO + Sys = Environment.handle(Environment.getLineSeparator)()
+        def getLineSeparator(): String \ IO = Environment.handle(Environment.getLineSeparator)()
 
         @test
         def testEmptyObject01(): Bool = toPrettyString(2, JsonObject(Map#{})) == "{}"
 
         @test
-        def testSingletonString01(): Bool \ {IO, Sys} = toPrettyString(2, JsonObject(Map#{"key" => JsonString("value")})) == String.intercalate(getLineSeparator(), List#{
+        def testSingletonString01(): Bool \ IO = toPrettyString(2, JsonObject(Map#{"key" => JsonString("value")})) == String.intercalate(getLineSeparator(), List#{
             "{",
              "  \"key\": \"value\"",
              "}"
         })
 
         @test
-        def testSingletonString02(): Bool \ {IO, Sys} = toPrettyString(2, JsonObject(Map#{"key" => JsonString("\t")})) == String.intercalate(getLineSeparator(), List#{
+        def testSingletonString02(): Bool \ IO = toPrettyString(2, JsonObject(Map#{"key" => JsonString("\t")})) == String.intercalate(getLineSeparator(), List#{
             "{",
             "  \"key\": \"\\t\"",
             "}"
         })
 
         @test
-        def testSingletonString03(): Bool \ {IO, Sys} = toPrettyString(2, JsonObject(Map#{"key" => JsonString("!")})) == String.intercalate(getLineSeparator(), List#{
+        def testSingletonString03(): Bool \ IO = toPrettyString(2, JsonObject(Map#{"key" => JsonString("!")})) == String.intercalate(getLineSeparator(), List#{
             "{",
             "  \"key\": \"!\"",
             "}"
         })
 
         @test
-        def testDoubleString01(): Bool \ {IO, Sys} = 
+        def testDoubleString01(): Bool \ IO = 
             toPrettyString(2, JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")})) == String.intercalate(getLineSeparator(), List#{
                 "{",
                 "  \"key1\": \"value1\",",
@@ -81,7 +81,7 @@ mod TestWrite {
             })
 
         @test
-        def testSingletonEmptyArray01(): Bool \ {IO, Sys} = toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Nil)})) == String.intercalate(getLineSeparator(), List#{
+        def testSingletonEmptyArray01(): Bool \ IO = toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Nil)})) == String.intercalate(getLineSeparator(), List#{
             "{",
             "  \"key\": []",
             "}"
@@ -89,7 +89,7 @@ mod TestWrite {
 
 
         @test
-        def testSingletonSingletonArray01(): Bool \ {IO, Sys} = 
+        def testSingletonSingletonArray01(): Bool \ IO = 
             toPrettyString(2, JsonObject(Map#{"key" => JsonArray(JsonString("value") :: Nil)})) == String.intercalate(getLineSeparator(), List#{
                 "{",
                 "  \"key\": [",
@@ -99,7 +99,7 @@ mod TestWrite {
             })
 
         @test 
-        def testSingletonDoubleArray01(): Bool \ {IO, Sys} = 
+        def testSingletonDoubleArray01(): Bool \ IO = 
             toPrettyString(2, JsonObject(Map#{"key" => JsonArray(JsonString("v1") :: JsonString("v2") :: Nil)})) == String.intercalate(getLineSeparator(), List#{
                 "{",
                  "  \"key\": [",
@@ -110,7 +110,7 @@ mod TestWrite {
             })
 
         @test
-        def testSingletonInt01(): Bool \ {IO, Sys} = {
+        def testSingletonInt01(): Bool \ IO = {
             toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(Int32.toBigDecimal(1))})) == String.intercalate(getLineSeparator(), List#{
                 "{",
                 "  \"key\": 1",
@@ -119,7 +119,7 @@ mod TestWrite {
         }
 
         @test
-        def testSingletonFloat01(): Bool \ {IO, Sys} = {
+        def testSingletonFloat01(): Bool \ IO = {
             toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(1.0ff)})) == String.intercalate(getLineSeparator(), List#{
                 "{",
                 "  \"key\": 1.0",
