@@ -20,7 +20,7 @@ jobs:
           field: 'package.flix'
       - run: |
           # download the latest nightly Flix JAR
-          url="https://flix.dev/nightly/flix-latest.jar"
+          url="https://github.com/mlutze/flix-nightly/releases/latest/download/flix.jar"
           curl -L -f "$url" > flix.jar
 
           # run tests
