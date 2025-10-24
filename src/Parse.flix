@@ -191,7 +191,9 @@ mod Json.Parse {
                 intVal <- hexToInt(string);
                 chars <- CodePoint.toChars(intVal)
             ) yield {
-                unsafe chars[0]
+                run chars[0] with handler OutOfBounds {
+                    def outOfBounds(_, _) = unreachable!()
+                }
             };
             match charRes {
                 case None => None
