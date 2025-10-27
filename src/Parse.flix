@@ -90,7 +90,7 @@ mod Json.Parse {
             (elems, tail2) <- elements(tail1);
             (_, tail3) <- require(']', tail2)
         ) yield {
-            (JsonArray(elems), tail3)
+            (JsonArray(List.toVector(elems)), tail3)
         }
     }
 

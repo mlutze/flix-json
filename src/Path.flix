@@ -59,7 +59,7 @@ mod Json.Path {
                 forM (
                     next <- apply(root, json);
                     res <- match next {
-                            case JsonArray(l) => nth(i, l)
+                            case JsonArray(v) => Vector.nth(i, v)
                             case _ => None
                         }
                 ) yield {
@@ -78,13 +78,5 @@ mod Json.Path {
         }
     }
 
-    ///
-    /// Returns the nth element in the given list.
-    ///
-    def nth(n: Int32, l: List[a]): Option[a] = match (n, l) {
-        case (0, hd :: _) => Some(hd)
-        case (_, _ :: tl) if n > 0 => nth(n - 1, tl)
-        case _ => None
-    }
 }
 
