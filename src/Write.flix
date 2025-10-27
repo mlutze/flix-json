@@ -11,8 +11,8 @@ mod Json.Write {
             let contents = map
                 |> Map.joinWith((k, v) -> escape(k) + ":" + toCompactString(v), ",");
             "{" + contents + "}"
-        case JsonArray(list) =>
-            let contents = list |> List.joinWith(toCompactString, ",");
+        case JsonArray(vec) =>
+            let contents = vec |> Vector.joinWith(toCompactString, ",");
             "[" + contents + "]"
         case JsonString(s) => escape(s)
         case JsonNumber(n) => "${n}"
@@ -29,9 +29,9 @@ mod Json.Write {
             let contents = map
                 |> Map.joinWith((k, v) -> escape(k) + ": " + toPrettyString(tab, v), ",\n");
             "{\n" + String.indent(tab, contents) + "}"
-        case JsonArray(Nil) => "[]"
-        case JsonArray(list) =>
-            let contents = list |> List.joinWith(toPrettyString(tab), ",\n");
+        case JsonArray(vec) if Vector.isEmpty(vec) => "[]"
+        case JsonArray(vec) =>
+            let contents = vec |> Vector.joinWith(toPrettyString(tab), ",\n");
             "[\n" + String.indent(tab, contents) + "]"
         case JsonString(s) => escape(s)
         case JsonNumber(n) => "${n}"

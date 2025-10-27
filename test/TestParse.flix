@@ -22,15 +22,15 @@ mod TestParse {
         parse("{\"key1\": \"value1\", \"key2\": \"value2\"}") == Some(JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")}))
 
     @test
-    def testSingletonEmptyArray01(): Bool = parse("{\"key\": []}") == Some(JsonObject(Map#{"key" => JsonArray(Nil)}))
+    def testSingletonEmptyArray01(): Bool = parse("{\"key\": []}") == Some(JsonObject(Map#{"key" => JsonArray(Vector#{})}))
 
     @test
     def testSingletonSingletonArray01(): Bool =
-        parse("{\"key\": [\"value\"]}") == Some(JsonObject(Map#{"key" => JsonArray(JsonString("value") :: Nil)}))
+        parse("{\"key\": [\"value\"]}") == Some(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("value")})}))
 
     @test
     def testSingletonDoubleArray01(): Bool =
-        parse("{\"key\": [\"v1\", \"v2\"]}") == Some(JsonObject(Map#{"key" => JsonArray(JsonString("v1") :: JsonString("v2") :: Nil)}))
+        parse("{\"key\": [\"v1\", \"v2\"]}") == Some(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("v1"), JsonString("v2")})}))
 
     @test
     def testSingletonInt01(): Bool = {
@@ -52,12 +52,12 @@ mod TestParse {
         parse("{\"key\": \"\\a\"}") == None
     }
 
-    def parseArrayCmp(str: String, expected: List[Json.JsonElement]): Bool =
+    def parseArrayCmp(str: String, expected: Vector[Json.JsonElement]): Bool =
         parse(str) == Some(JsonArray(expected))
 
     @test
     def testShortArray(): Bool =
-        parseArrayCmp("[1, 2, 3]", JsonNumber(1ff)::JsonNumber(2ff)::JsonNumber(3ff)::Nil)
+        parseArrayCmp("[1, 2, 3]", Vector#{JsonNumber(1ff), JsonNumber(2ff), JsonNumber(3ff)})
 
     @test
     def testLongArray(): Bool =
@@ -77,6 +77,6 @@ mod TestParse {
             loop(2);
             StringBuilder.append("]", sb);
             let txt = StringBuilder.toString(sb);
-            parseArrayCmp(txt, MutList.toList(lst))
+            parseArrayCmp(txt, MutList.toList(lst) |> List.toVector)
         }
 }

@@ -20,15 +20,15 @@ mod TestWrite {
             toCompactString(JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")})) == "{\"key1\":\"value1\",\"key2\":\"value2\"}"
 
         @test
-        def testSingletonEmptyArray01(): Bool = toCompactString(JsonObject(Map#{"key" => JsonArray(Nil)})) == "{\"key\":[]}"
+        def testSingletonEmptyArray01(): Bool = toCompactString(JsonObject(Map#{"key" => JsonArray(Vector#{})})) == "{\"key\":[]}"
 
         @test
-        def testSingletonSingletonArray01(): Bool = 
-            toCompactString(JsonObject(Map#{"key" => JsonArray(JsonString("value") :: Nil)})) == "{\"key\":[\"value\"]}"
+        def testSingletonSingletonArray01(): Bool =
+            toCompactString(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("value")})})) == "{\"key\":[\"value\"]}"
 
-        @test 
-        def testSingletonDoubleArray01(): Bool = 
-            toCompactString(JsonObject(Map#{"key" => JsonArray(JsonString("v1") :: JsonString("v2") :: Nil)})) == "{\"key\":[\"v1\",\"v2\"]}"
+        @test
+        def testSingletonDoubleArray01(): Bool =
+            toCompactString(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("v1"), JsonString("v2")})})) == "{\"key\":[\"v1\",\"v2\"]}"
 
         @test
         def testSingletonInt01(): Bool = {
@@ -81,7 +81,7 @@ mod TestWrite {
             })
 
         @test
-        def testSingletonEmptyArray01(): Bool \ IO = toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Nil)})) == String.intercalate(getLineSeparator(), List#{
+        def testSingletonEmptyArray01(): Bool \ IO = toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Vector#{})})) == String.intercalate(getLineSeparator(), List#{
             "{",
             "  \"key\": []",
             "}"
@@ -89,8 +89,8 @@ mod TestWrite {
 
 
         @test
-        def testSingletonSingletonArray01(): Bool \ IO = 
-            toPrettyString(2, JsonObject(Map#{"key" => JsonArray(JsonString("value") :: Nil)})) == String.intercalate(getLineSeparator(), List#{
+        def testSingletonSingletonArray01(): Bool \ IO =
+            toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("value")})})) == String.intercalate(getLineSeparator(), List#{
                 "{",
                 "  \"key\": [",
                 "    \"value\"",
@@ -98,9 +98,9 @@ mod TestWrite {
                 "}"
             })
 
-        @test 
-        def testSingletonDoubleArray01(): Bool \ IO = 
-            toPrettyString(2, JsonObject(Map#{"key" => JsonArray(JsonString("v1") :: JsonString("v2") :: Nil)})) == String.intercalate(getLineSeparator(), List#{
+        @test
+        def testSingletonDoubleArray01(): Bool \ IO =
+            toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("v1"), JsonString("v2")})})) == String.intercalate(getLineSeparator(), List#{
                 "{",
                  "  \"key\": [",
                  "    \"v1\",",

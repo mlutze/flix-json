@@ -3,7 +3,7 @@ mod Json {
 
     pub enum JsonElement {
         case JsonObject(Map[String, JsonElement])
-        case JsonArray(List[JsonElement])
+        case JsonArray(Vector[JsonElement])
         case JsonString(String)
         case JsonNumber(BigDecimal)
         case JsonBool(Bool)

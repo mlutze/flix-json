@@ -217,14 +217,14 @@ mod Json {
 
     instance ToJson[List[a]] with ToJson[a] {
         pub def toJson(x: List[a]): JsonElement = {
-            let elems = List.map(Json.ToJson.toJson, x);
+            let elems = List.map(Json.ToJson.toJson, x) |> List.toVector;
             JsonArray(elems)
         }
     }
 
     instance FromJson[List[a]] with FromJson[a] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, List[a]] = match x {
-            case JsonArray(l) => l |> List.zipWithIndex |> Result.traverse(match (i, val) -> Json.FromJson.fromJsonAt(p !! i, val))
+            case JsonArray(v) => v |> Vector.toList |> List.zipWithIndex |> Result.traverse(match (i, val) -> Json.FromJson.fromJsonAt(p !! i, val))
             case _ => Err(JsonError(p, Set#{"array"}))
         }
     }
@@ -265,17 +265,17 @@ mod Json {
 
     instance ToJson[Option[a]] with ToJson[a] {
         pub def toJson(x: Option[a]): JsonElement = match x {
-            case Some(y) => JsonArray(Json.ToJson.toJson(y) :: Nil)
-            case None => JsonArray(Nil)
+            case Some(y) => JsonArray(Vector#{Json.ToJson.toJson(y)})
+            case None => JsonArray(Vector#{})
         }
     }
 
     instance FromJson[Option[a]] with FromJson[a] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Option[a]] = match x {
-            case JsonArray(Nil) => Ok(None)
-            case JsonArray(y0 :: Nil) =>
+            case JsonArray(v) if Vector.length(v) == 0 => Ok(None)
+            case JsonArray(v) if Vector.length(v) == 1 =>
                 forM (
-                    y <- Json.FromJson.fromJsonAt(p, y0)
+                    y <- Json.FromJson.fromJsonAt(p, Vector.get(0, v))
                 ) yield {
                     Some(y)
                 }
@@ -290,28 +290,21 @@ mod Json {
             let (a, b) = x;
             let jsonA = Json.ToJson.toJson(a);
             let jsonB = Json.ToJson.toJson(b);
-            JsonArray(jsonA :: jsonB :: Nil)
+            JsonArray(Vector#{jsonA, jsonB})
         }
     }
 
     instance FromJson[(a, b)] with FromJson[a], FromJson[b] {
-        pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b)] = {
-            forM (
-                l <- Json.FromJson.fromJsonAt(p, x);
-                res <- match l {
-                    case a :: b :: Nil =>
-                        forM (
-                            resA <- Json.FromJson.fromJsonAt(p !! 0, a);
-                            resB <- Json.FromJson.fromJsonAt(p !! 1, b)
-                        ) yield {
-                            (resA, resB)
-                        }
-                    case _ =>
-                        Err(JsonError(p, Set#{"2-ary array"}))
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b)] = match x {
+            case JsonArray(v) if Vector.length(v) == 2 =>
+                forM (
+                    resA <- Json.FromJson.fromJsonAt(p !! 0, Vector.get(0, v));
+                    resB <- Json.FromJson.fromJsonAt(p !! 1, Vector.get(1, v))
+                ) yield {
+                    (resA, resB)
                 }
-            ) yield {
-                res
-            }
+            case _ =>
+                Err(JsonError(p, Set#{"2-ary array"}))
         }
     }
 
@@ -323,29 +316,22 @@ mod Json {
             let jsonA = Json.ToJson.toJson(a);
             let jsonB = Json.ToJson.toJson(b);
             let jsonC = Json.ToJson.toJson(c);
-            JsonArray(jsonA :: jsonB :: jsonC :: Nil)
+            JsonArray(Vector#{jsonA, jsonB, jsonC})
         }
     }
 
     instance FromJson[(a, b, c)] with FromJson[a], FromJson[b], FromJson[c] {
-        pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b, c)] = {
-            forM (
-                l <- Json.FromJson.fromJsonAt(p, x);
-                res <- match l {
-                    case a :: b :: c :: Nil =>
-                        forM (
-                            resA <- Json.FromJson.fromJsonAt(p !! 0, a);
-                            resB <- Json.FromJson.fromJsonAt(p !! 1, b);
-                            resC <- Json.FromJson.fromJsonAt(p !! 2, c)
-                        ) yield {
-                            (resA, resB, resC)
-                        }
-                    case _ =>
-                        Err(JsonError(p, Set#{"3-ary array"}))
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b, c)] = match x {
+            case JsonArray(v) if Vector.length(v) == 3 =>
+                forM (
+                    resA <- Json.FromJson.fromJsonAt(p !! 0, Vector.get(0, v));
+                    resB <- Json.FromJson.fromJsonAt(p !! 1, Vector.get(1, v));
+                    resC <- Json.FromJson.fromJsonAt(p !! 2, Vector.get(2, v))
+                ) yield {
+                    (resA, resB, resC)
                 }
-            ) yield {
-                res
-            }
+            case _ =>
+                Err(JsonError(p, Set#{"3-ary array"}))
         }
     }
 
@@ -358,30 +344,23 @@ mod Json {
             let jsonB = Json.ToJson.toJson(b);
             let jsonC = Json.ToJson.toJson(c);
             let jsonD = Json.ToJson.toJson(d);
-            JsonArray(jsonA :: jsonB :: jsonC :: jsonD :: Nil)
+            JsonArray(Vector#{jsonA, jsonB, jsonC, jsonD})
         }
     }
 
     instance FromJson[(a, b, c, d)] with FromJson[a], FromJson[b], FromJson[c], FromJson[d] {
-        pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b, c, d)] = {
-            forM (
-                l <- Json.FromJson.fromJsonAt(p, x);
-                res <- match l {
-                    case a :: b :: c :: d :: Nil =>
-                        forM (
-                            resA <- Json.FromJson.fromJsonAt(p !! 0, a);
-                            resB <- Json.FromJson.fromJsonAt(p !! 1, b);
-                            resC <- Json.FromJson.fromJsonAt(p !! 2, c);
-                            resD <- Json.FromJson.fromJsonAt(p !! 3, d)
-                        ) yield {
-                            (resA, resB, resC, resD)
-                        }
-                    case _ =>
-                        Err(JsonError(p, Set#{"4-ary array"}))
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, (a, b, c, d)] = match x {
+            case JsonArray(v) if Vector.length(v) == 4 =>
+                forM (
+                    resA <- Json.FromJson.fromJsonAt(p !! 0, Vector.get(0, v));
+                    resB <- Json.FromJson.fromJsonAt(p !! 1, Vector.get(1, v));
+                    resC <- Json.FromJson.fromJsonAt(p !! 2, Vector.get(2, v));
+                    resD <- Json.FromJson.fromJsonAt(p !! 3, Vector.get(3, v))
+                ) yield {
+                    (resA, resB, resC, resD)
                 }
-            ) yield {
-                res
-            }
+            case _ =>
+                Err(JsonError(p, Set#{"4-ary array"}))
         }
     }
 

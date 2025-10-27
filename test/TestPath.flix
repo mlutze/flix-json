@@ -20,7 +20,7 @@ mod TestPath {
 
     @test
     pub def testPath03(): Bool = {
-        let json = JsonArray(JsonNull :: JsonBool(true) :: JsonBool(false) :: Nil);
+        let json = JsonArray(Vector#{JsonNull, JsonBool(true), JsonBool(false)});
         let path = Root !! 1;
         apply(path, json) == Some(JsonBool(true))
     }
@@ -48,7 +48,7 @@ mod TestPath {
 
     @test
     pub def testPath07(): Bool = {
-        let json = JsonArray(JsonNull :: JsonBool(true) :: JsonBool(false) :: Nil);
+        let json = JsonArray(Vector#{JsonNull, JsonBool(true), JsonBool(false)});
         let path = Root !! 5;
         apply(path, json) == None
     }
