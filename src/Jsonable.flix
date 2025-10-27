@@ -231,6 +231,23 @@ mod Json {
 
     instance Jsonable[List[a]] with Jsonable[a]
 
+    instance ToJson[Vector[a]] with ToJson[a] {
+        pub def toJson(x: Vector[a]): JsonElement = {
+            let elems = Vector.map(Json.ToJson.toJson, x);
+            JsonArray(elems)
+        }
+    }
+
+    instance FromJson[Vector[a]] with FromJson[a] {
+        pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Vector[a]] = match x {
+            case JsonArray(v) =>
+                v |> Vector.toList |> List.zipWithIndex |> Result.traverse(match (i, val) -> Json.FromJson.fromJsonAt(p !! i, val)) |> Result.map(List.toVector)
+            case _ => Err(JsonError(p, Set#{"array"}))
+        }
+    }
+
+    instance Jsonable[Vector[a]] with Jsonable[a]
+
     instance ToJson[Map[k, v]] with ToString[k], ToJson[v] {
         pub def toJson(x: Map[k, v]): JsonElement = {
             let map = x

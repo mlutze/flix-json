@@ -174,6 +174,12 @@ mod TestJsonable {
     @test
     pub def testThing2_02(): Bool = testRoundTrip(Thing2.Thing2("Hello", Some(123)))
 
+    @test
+    pub def testVector01(): Bool = testRoundTrip(Vector#{1, 2, 3})
+
+    @test
+    pub def testVector02(): Bool = testRoundTrip(Vector#{"a", "b", "c"})
+
     def testRoundTrip(x: a): Bool with Jsonable[a], Eq[a] = {
         x |> toJson |> fromJson == Ok(x)
     }
