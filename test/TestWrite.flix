@@ -45,7 +45,7 @@ mod TestWrite {
         use Json.Write.toPrettyString
         use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
-        def getLineSeparator(): String \ IO = Environment.handle(Environment.getLineSeparator)()
+        def getLineSeparator(): String \ IO = Env.handle(Env.getLineSeparator)()
 
         @test
         def testEmptyObject01(): Bool = toPrettyString(2, JsonObject(Map#{})) == "{}"
