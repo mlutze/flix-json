@@ -4,40 +4,45 @@ mod TestWrite {
         use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
         @Test
-        def testEmptyObject01(): Bool = toCompactString(JsonObject(Map#{})) == "{}"
+        def testEmptyObject01(): Unit \ Assert =
+            Assert.assertEq(expected = "{}", toCompactString(JsonObject(Map#{})))
 
         @Test
-        def testSingletonString01(): Bool = toCompactString(JsonObject(Map#{"key" => JsonString("value")})) == "{\"key\":\"value\"}"
+        def testSingletonString01(): Unit \ Assert =
+            Assert.assertEq(expected = "{\"key\":\"value\"}", toCompactString(JsonObject(Map#{"key" => JsonString("value")})))
 
         @Test
-        def testSingletonString02(): Bool = toCompactString(JsonObject(Map#{"key" => JsonString("\t")})) == "{\"key\":\"\\t\"}"
+        def testSingletonString02(): Unit \ Assert =
+            Assert.assertEq(expected = "{\"key\":\"\\t\"}", toCompactString(JsonObject(Map#{"key" => JsonString("\t")})))
 
         @Test
-        def testSingletonString03(): Bool = toCompactString(JsonObject(Map#{"key" => JsonString("!")})) == "{\"key\":\"!\"}"
+        def testSingletonString03(): Unit \ Assert =
+            Assert.assertEq(expected = "{\"key\":\"!\"}", toCompactString(JsonObject(Map#{"key" => JsonString("!")})))
 
         @Test
-        def testDoubleString01(): Bool = 
-            toCompactString(JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")})) == "{\"key1\":\"value1\",\"key2\":\"value2\"}"
+        def testDoubleString01(): Unit \ Assert =
+            Assert.assertEq(expected = "{\"key1\":\"value1\",\"key2\":\"value2\"}", toCompactString(JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")})))
 
         @Test
-        def testSingletonEmptyArray01(): Bool = toCompactString(JsonObject(Map#{"key" => JsonArray(Vector#{})})) == "{\"key\":[]}"
+        def testSingletonEmptyArray01(): Unit \ Assert =
+            Assert.assertEq(expected = "{\"key\":[]}", toCompactString(JsonObject(Map#{"key" => JsonArray(Vector#{})})))
 
         @Test
-        def testSingletonSingletonArray01(): Bool =
-            toCompactString(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("value")})})) == "{\"key\":[\"value\"]}"
+        def testSingletonSingletonArray01(): Unit \ Assert =
+            Assert.assertEq(expected = "{\"key\":[\"value\"]}", toCompactString(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("value")})})))
 
         @Test
-        def testSingletonDoubleArray01(): Bool =
-            toCompactString(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("v1"), JsonString("v2")})})) == "{\"key\":[\"v1\",\"v2\"]}"
+        def testSingletonDoubleArray01(): Unit \ Assert =
+            Assert.assertEq(expected = "{\"key\":[\"v1\",\"v2\"]}", toCompactString(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("v1"), JsonString("v2")})})))
 
         @Test
-        def testSingletonInt01(): Bool = {
-            toCompactString(JsonObject(Map#{"key" => JsonNumber(Int32.toBigDecimal(1))})) == "{\"key\":1}"
+        def testSingletonInt01(): Unit \ Assert = {
+            Assert.assertEq(expected = "{\"key\":1}", toCompactString(JsonObject(Map#{"key" => JsonNumber(Int32.toBigDecimal(1))})))
         }
 
         @Test
-        def testSingletonFloat01(): Bool = {
-            toCompactString(JsonObject(Map#{"key" => JsonNumber(1.0ff)})) == "{\"key\":1.0}"
+        def testSingletonFloat01(): Unit \ Assert = {
+            Assert.assertEq(expected = "{\"key\":1.0}", toCompactString(JsonObject(Map#{"key" => JsonNumber(1.0ff)})))
         }
     }
 
@@ -48,83 +53,88 @@ mod TestWrite {
         def getLineSeparator(): String \ IO = Env.handle(Env.getLineSeparator)()
 
         @Test
-        def testEmptyObject01(): Bool = toPrettyString(2, JsonObject(Map#{})) == "{}"
+        def testEmptyObject01(): Unit \ Assert =
+            Assert.assertEq(expected = "{}", toPrettyString(2, JsonObject(Map#{})))
 
         @Test
-        def testSingletonString01(): Bool \ IO = toPrettyString(2, JsonObject(Map#{"key" => JsonString("value")})) == String.intercalate(getLineSeparator(), List#{
-            "{",
-             "  \"key\": \"value\"",
-             "}"
-        })
+        def testSingletonString01(): Unit \ {Assert, IO} =
+            Assert.assertEq(expected = String.intercalate(getLineSeparator(), List#{
+                "{",
+                 "  \"key\": \"value\"",
+                 "}"
+            }), toPrettyString(2, JsonObject(Map#{"key" => JsonString("value")})))
 
         @Test
-        def testSingletonString02(): Bool \ IO = toPrettyString(2, JsonObject(Map#{"key" => JsonString("\t")})) == String.intercalate(getLineSeparator(), List#{
-            "{",
-            "  \"key\": \"\\t\"",
-            "}"
-        })
+        def testSingletonString02(): Unit \ {Assert, IO} =
+            Assert.assertEq(expected = String.intercalate(getLineSeparator(), List#{
+                "{",
+                "  \"key\": \"\\t\"",
+                "}"
+            }), toPrettyString(2, JsonObject(Map#{"key" => JsonString("\t")})))
 
         @Test
-        def testSingletonString03(): Bool \ IO = toPrettyString(2, JsonObject(Map#{"key" => JsonString("!")})) == String.intercalate(getLineSeparator(), List#{
-            "{",
-            "  \"key\": \"!\"",
-            "}"
-        })
+        def testSingletonString03(): Unit \ {Assert, IO} =
+            Assert.assertEq(expected = String.intercalate(getLineSeparator(), List#{
+                "{",
+                "  \"key\": \"!\"",
+                "}"
+            }), toPrettyString(2, JsonObject(Map#{"key" => JsonString("!")})))
 
         @Test
-        def testDoubleString01(): Bool \ IO = 
-            toPrettyString(2, JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")})) == String.intercalate(getLineSeparator(), List#{
+        def testDoubleString01(): Unit \ {Assert, IO} =
+            Assert.assertEq(expected = String.intercalate(getLineSeparator(), List#{
                 "{",
                 "  \"key1\": \"value1\",",
-                "  \"key2\": \"value2\"", 
+                "  \"key2\": \"value2\"",
                 "}"
-            })
+            }), toPrettyString(2, JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")})))
 
         @Test
-        def testSingletonEmptyArray01(): Bool \ IO = toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Vector#{})})) == String.intercalate(getLineSeparator(), List#{
-            "{",
-            "  \"key\": []",
-            "}"
-        })
+        def testSingletonEmptyArray01(): Unit \ {Assert, IO} =
+            Assert.assertEq(expected = String.intercalate(getLineSeparator(), List#{
+                "{",
+                "  \"key\": []",
+                "}"
+            }), toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Vector#{})})))
 
 
         @Test
-        def testSingletonSingletonArray01(): Bool \ IO =
-            toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("value")})})) == String.intercalate(getLineSeparator(), List#{
+        def testSingletonSingletonArray01(): Unit \ {Assert, IO} =
+            Assert.assertEq(expected = String.intercalate(getLineSeparator(), List#{
                 "{",
                 "  \"key\": [",
                 "    \"value\"",
                 "  ]",
                 "}"
-            })
+            }), toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("value")})})))
 
         @Test
-        def testSingletonDoubleArray01(): Bool \ IO =
-            toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("v1"), JsonString("v2")})})) == String.intercalate(getLineSeparator(), List#{
+        def testSingletonDoubleArray01(): Unit \ {Assert, IO} =
+            Assert.assertEq(expected = String.intercalate(getLineSeparator(), List#{
                 "{",
                  "  \"key\": [",
                  "    \"v1\",",
                  "    \"v2\"",
                  "  ]",
                  "}"
-            })
+            }), toPrettyString(2, JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("v1"), JsonString("v2")})})))
 
         @Test
-        def testSingletonInt01(): Bool \ IO = {
-            toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(Int32.toBigDecimal(1))})) == String.intercalate(getLineSeparator(), List#{
+        def testSingletonInt01(): Unit \ {Assert, IO} = {
+            Assert.assertEq(expected = String.intercalate(getLineSeparator(), List#{
                 "{",
                 "  \"key\": 1",
                 "}"
-            })
+            }), toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(Int32.toBigDecimal(1))})))
         }
 
         @Test
-        def testSingletonFloat01(): Bool \ IO = {
-            toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(1.0ff)})) == String.intercalate(getLineSeparator(), List#{
+        def testSingletonFloat01(): Unit \ {Assert, IO} = {
+            Assert.assertEq(expected = String.intercalate(getLineSeparator(), List#{
                 "{",
                 "  \"key\": 1.0",
                 "}"
-            })
+            }), toPrettyString(2, JsonObject(Map#{"key" => JsonNumber(1.0ff)})))
         }
     }
 }
