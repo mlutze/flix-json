@@ -113,13 +113,13 @@ mod TestJsonable {
 
     @Test
     pub def testNullable01(): Unit \ Assert =
-        Assert.assertEq(expected = Ok((None: Option[String])), fromNullableJson(JsonNull))
+        Assert.assertTrue(fromNullableJson(JsonNull) == Ok((None: Option[String])))
 
     @Test
     pub def testNullable02(): Unit \ Assert =
-        Assert.assertEq(expected = Ok(Some("hello")), fromNullableJson(JsonString("hello")))
+        Assert.assertTrue(fromNullableJson(JsonString("hello")) == Ok(Some("hello")))
 
-    enum Thing(String, Int32) with Eq, ToString
+    enum Thing(String, Int32) with Eq
 
     instance ToJson[Thing] {
         pub def toJson(x: Thing): JsonElement = {
@@ -146,7 +146,7 @@ mod TestJsonable {
     @Test
     pub def testThing01(): Unit \ Assert = testRoundTrip(Thing.Thing("Hello", 123))
 
-    enum Thing2(String, Option[Int32]) with Eq, ToString
+    enum Thing2(String, Option[Int32]) with Eq
 
     instance ToJson[Thing2] {
         pub def toJson(x: Thing2): JsonElement = {
@@ -186,11 +186,11 @@ mod TestJsonable {
     @Test
     pub def testVector02(): Unit \ Assert = testRoundTrip(Vector#{"a", "b", "c"})
 
-    def testRoundTrip(x: a): Unit \ Assert with Jsonable[a], Eq[a], ToString[a] = {
-        Assert.assertEq(expected = Ok(x), x |> toJson |> fromJson)
+    def testRoundTrip(x: a): Unit \ Assert with Jsonable[a], Eq[a] = {
+        Assert.assertTrue(x |> toJson |> fromJson == Ok(x))
     }
 
-    def testLawlessRoundTrip(x: a): Unit \ Assert with FromJson[a], ToJson[a], Eq[a], ToString[a] = {
-        Assert.assertEq(expected = Ok(x), x |> toJson |> fromJson)
+    def testLawlessRoundTrip(x: a): Unit \ Assert with FromJson[a], ToJson[a], Eq[a] = {
+        Assert.assertTrue(x |> toJson |> fromJson == Ok(x))
     }
 }

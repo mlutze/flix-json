@@ -4,62 +4,62 @@ mod TestParse {
 
     @Test
     def testEmptyObject01(): Unit \ Assert =
-        Assert.assertEq(expected = Some(JsonObject(Map#{})), parse("{}"))
+        Assert.assertTrue(parse("{}") == Some(JsonObject(Map#{})))
 
     @Test
     def testEmptyObject02(): Unit \ Assert =
-        Assert.assertEq(expected = Some(JsonObject(Map#{})), parse("        {        }        "))
+        Assert.assertTrue(parse("        {        }        ") == Some(JsonObject(Map#{})))
 
     @Test
     def testSingletonString01(): Unit \ Assert =
-        Assert.assertEq(expected = Some(JsonObject(Map#{"key" => JsonString("value")})), parse("{\"key\": \"value\"}"))
+        Assert.assertTrue(parse("{\"key\": \"value\"}") == Some(JsonObject(Map#{"key" => JsonString("value")})))
 
     @Test
     def testSingletonString02(): Unit \ Assert =
-        Assert.assertEq(expected = Some(JsonObject(Map#{"key" => JsonString("\t")})), parse("{\"key\": \"\\t\"}"))
+        Assert.assertTrue(parse("{\"key\": \"\\t\"}") == Some(JsonObject(Map#{"key" => JsonString("\t")})))
 
     @Test
     def testSingletonString03(): Unit \ Assert =
-        Assert.assertEq(expected = Some(JsonObject(Map#{"key" => JsonString("!")})), parse("{\"key\": \"\\u0021\"}"))
+        Assert.assertTrue(parse("{\"key\": \"\\u0021\"}") == Some(JsonObject(Map#{"key" => JsonString("!")})))
 
     @Test
     def testDoubleString01(): Unit \ Assert =
-        Assert.assertEq(expected = Some(JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")})), parse("{\"key1\": \"value1\", \"key2\": \"value2\"}"))
+        Assert.assertTrue(parse("{\"key1\": \"value1\", \"key2\": \"value2\"}") == Some(JsonObject(Map#{"key1" => JsonString("value1"), "key2" => JsonString("value2")})))
 
     @Test
     def testSingletonEmptyArray01(): Unit \ Assert =
-        Assert.assertEq(expected = Some(JsonObject(Map#{"key" => JsonArray(Vector#{})})), parse("{\"key\": []}"))
+        Assert.assertTrue(parse("{\"key\": []}") == Some(JsonObject(Map#{"key" => JsonArray(Vector#{})})))
 
     @Test
     def testSingletonSingletonArray01(): Unit \ Assert =
-        Assert.assertEq(expected = Some(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("value")})})), parse("{\"key\": [\"value\"]}"))
+        Assert.assertTrue(parse("{\"key\": [\"value\"]}") == Some(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("value")})})))
 
     @Test
     def testSingletonDoubleArray01(): Unit \ Assert =
-        Assert.assertEq(expected = Some(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("v1"), JsonString("v2")})})), parse("{\"key\": [\"v1\", \"v2\"]}"))
+        Assert.assertTrue(parse("{\"key\": [\"v1\", \"v2\"]}") == Some(JsonObject(Map#{"key" => JsonArray(Vector#{JsonString("v1"), JsonString("v2")})})))
 
     @Test
     def testSingletonInt01(): Unit \ Assert = {
-        Assert.assertEq(expected = Some(JsonObject(Map#{"key" => JsonNumber(1.0ff)})), parse("{\"key\": 1}"))
+        Assert.assertTrue(parse("{\"key\": 1}") == Some(JsonObject(Map#{"key" => JsonNumber(1.0ff)})))
     }
 
     @Test
     def testSingletonFloat01(): Unit \ Assert = {
-        Assert.assertEq(expected = Some(JsonObject(Map#{"key" => JsonNumber(1.0ff)})), parse("{\"key\": 1.0}"))
+        Assert.assertTrue(parse("{\"key\": 1.0}") == Some(JsonObject(Map#{"key" => JsonNumber(1.0ff)})))
     }
 
     @Test
     def testUnicode01(): Unit \ Assert = {
-        Assert.assertEq(expected = Some(JsonObject(Map#{"key" => JsonString("ц")})), parse("{\"key\": \"\\u0446\"}"))
+        Assert.assertTrue(parse("{\"key\": \"\\u0446\"}") == Some(JsonObject(Map#{"key" => JsonString("ц")})))
     }
 
     @Test
     def testEscape01(): Unit \ Assert = {
-        Assert.assertEq(expected = None, parse("{\"key\": \"\\a\"}"))
+        Assert.assertTrue(parse("{\"key\": \"\\a\"}") == None)
     }
 
     def parseArrayCmp(str: String, expected: Vector[Json.JsonElement]): Unit \ Assert =
-        Assert.assertEq(expected = Some(JsonArray(expected)), parse(str))
+        Assert.assertTrue(parse(str) == Some(JsonArray(expected)))
 
     @Test
     def testShortArray(): Unit \ Assert =
