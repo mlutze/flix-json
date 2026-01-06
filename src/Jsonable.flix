@@ -4,7 +4,7 @@ mod Json {
     use JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     use JsonError.JsonError
 
-    pub enum JsonError(Path, Set[String]) with Eq, ToString
+    pub enum JsonError(Path, Set[String]) with Eq
 
     pub trait ToJson[a] {
         pub def toJson(x: a): JsonElement

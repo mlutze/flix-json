@@ -97,12 +97,12 @@ mod TestReadme {
         match resOpt {
             case Some(Person.Person(record)) => {
                 let Contact.Contact(contact) = record#contact;
-                Assert.assertEq(expected = 30, record#age);
-                Assert.assertEq(expected = "Alice", record#name);
-                Assert.assertEq(expected = "10001", record#zip);
-                Assert.assertEq(expected = "New York", record#city);
-                Assert.assertEq(expected = "alice@example.com", contact#email);
-                Assert.assertEq(expected = "123-456-7890", contact#phone)
+                Assert.assertTrue(record#age == 30);
+                Assert.assertTrue(record#name == "Alice");
+                Assert.assertTrue(record#zip == "10001");
+                Assert.assertTrue(record#city == "New York");
+                Assert.assertTrue(contact#email == "alice@example.com");
+                Assert.assertTrue(contact#phone == "123-456-7890")
             }
             case None => Assert.fail("expected Some")
         }
