@@ -87,7 +87,7 @@ mod TestReadme {
     
     
 
-    @test
+    @Test
     def testReadmeParse(): Bool = {
         let string = "{\r\n  \"name\": \"Alice\",\r\n  \"age\": 30,\r\n  \"address\": {\r\n    \"city\": \"New York\",\r\n    \"zip\": \"10001\"\r\n  },\r\n  \"contact\": {\r\n    \"email\": \"alice@example.com\",\r\n    \"phone\": \"123-456-7890\"\r\n  }\r\n}";
         let resOpt = forM (
