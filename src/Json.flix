@@ -1,7 +1,7 @@
 mod Json {
     use JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
-    pub enum JsonElement {
+    pub enum JsonElement with ToString {
         case JsonObject(Map[String, JsonElement])
         case JsonArray(Vector[JsonElement])
         case JsonString(String)

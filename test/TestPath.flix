@@ -5,57 +5,57 @@ mod TestPath {
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
 
     @Test
-    pub def testPath01(): Bool = {
+    pub def testPath01(): Unit \ Assert = {
         let json = JsonNull;
         let path = Root;
-        apply(path, json) == Some(JsonNull)
+        Assert.assertEq(expected = Some(JsonNull), apply(path, json))
     }
 
     @Test
-    pub def testPath02(): Bool = {
+    pub def testPath02(): Unit \ Assert = {
         let json = JsonObject(Map#{"a" => JsonBool(true), "b" => JsonBool(false)});
         let path = Root !! "b";
-        apply(path, json) == Some(JsonBool(false))
+        Assert.assertEq(expected = Some(JsonBool(false)), apply(path, json))
     }
 
     @Test
-    pub def testPath03(): Bool = {
+    pub def testPath03(): Unit \ Assert = {
         let json = JsonArray(Vector#{JsonNull, JsonBool(true), JsonBool(false)});
         let path = Root !! 1;
-        apply(path, json) == Some(JsonBool(true))
+        Assert.assertEq(expected = Some(JsonBool(true)), apply(path, json))
     }
 
     @Test
-    pub def testPath04(): Bool = {
+    pub def testPath04(): Unit \ Assert = {
         let json = JsonNull;
         let path = Root !! "b";
-        apply(path, json) == None
+        Assert.assertEq(expected = None, apply(path, json))
     }
 
     @Test
-    pub def testPath05(): Bool = {
+    pub def testPath05(): Unit \ Assert = {
         let json = JsonNull;
         let path = Root !! 1;
-        apply(path, json) == None
+        Assert.assertEq(expected = None, apply(path, json))
     }
 
     @Test
-    pub def testPath06(): Bool = {
+    pub def testPath06(): Unit \ Assert = {
         let json = JsonObject(Map#{"a" => JsonBool(true), "b" => JsonBool(false)});
         let path = Root !! "c";
-        apply(path, json) == None
+        Assert.assertEq(expected = None, apply(path, json))
     }
 
     @Test
-    pub def testPath07(): Bool = {
+    pub def testPath07(): Unit \ Assert = {
         let json = JsonArray(Vector#{JsonNull, JsonBool(true), JsonBool(false)});
         let path = Root !! 5;
-        apply(path, json) == None
+        Assert.assertEq(expected = None, apply(path, json))
     }
 
     @Test
-    pub def testPathToString(): Bool = {
+    pub def testPathToString(): Unit \ Assert = {
         let path = Root !! 5 !! "hello" !! "world" !! 42;
-        "${path}" == "$[5][\"hello\"][\"world\"][42]"
+        Assert.assertEq(expected = "$[5][\"hello\"][\"world\"][42]", "${path}")
     }
 }

@@ -88,20 +88,23 @@ mod TestReadme {
     
 
     @Test
-    def testReadmeParse(): Bool = {
+    def testReadmeParse(): Unit \ Assert = {
         let string = "{\r\n  \"name\": \"Alice\",\r\n  \"age\": 30,\r\n  \"address\": {\r\n    \"city\": \"New York\",\r\n    \"zip\": \"10001\"\r\n  },\r\n  \"contact\": {\r\n    \"email\": \"alice@example.com\",\r\n    \"phone\": \"123-456-7890\"\r\n  }\r\n}";
         let resOpt = forM (
             json <- Json.Parse.parse(string);
-            Person.Person(record) <- FromJson.fromJson(json) |> Result.toOption;
-            Contact.Contact(contact) = record#contact
-        ) yield {
-            record#age == 30
-            and record#name == "Alice"
-            and record#zip == "10001"
-            and record#city == "New York"
-            and contact#email == "alice@example.com"
-            and contact#phone == "123-456-7890"
-        };
-        Option.getWithDefault(false, resOpt)
+            person <- FromJson.fromJson(json) |> Result.toOption
+        ) yield person;
+        match resOpt {
+            case Some(Person.Person(record)) => {
+                let Contact.Contact(contact) = record#contact;
+                Assert.assertEq(expected = 30, record#age);
+                Assert.assertEq(expected = "Alice", record#name);
+                Assert.assertEq(expected = "10001", record#zip);
+                Assert.assertEq(expected = "New York", record#city);
+                Assert.assertEq(expected = "alice@example.com", contact#email);
+                Assert.assertEq(expected = "123-456-7890", contact#phone)
+            }
+            case None => Assert.fail("expected Some")
+        }
     }
 }
