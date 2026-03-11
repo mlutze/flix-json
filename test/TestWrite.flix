@@ -49,6 +49,7 @@ mod TestWrite {
     mod Pretty {
         use Json.Write.toPrettyString
         use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
+        use Sys.Env
 
         def getLineSeparator(): String \ IO = Env.handle(Env.getLineSeparator)()
 
