@@ -1,6 +1,6 @@
 mod Json.Parse {
+    use Json.JsonElement
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
-    use Json.JsonElement;
     use Option.flatMap;
 
     // Each main rule must start with a key character and consume trailing whitespace
