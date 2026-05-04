@@ -1,5 +1,10 @@
 mod TestJsonable {
     use Json.FromJson
+    use Json.FromJson.fromJson
+    use Json.FromJson.fromJsonAt
+    use Json.FromJson.fromNullableJson
+    use Json.FromJson.getAtKey
+    use Json.FromJson.getAtKeyOpt
     use Json.JsonElement
     use Json.JsonElement.JsonNull
     use Json.JsonElement.JsonObject
@@ -7,13 +12,8 @@ mod TestJsonable {
     use Json.JsonError
     use Json.Jsonable
     use Json.ToJson
-    use Json.getAtKey;
-    use Json.getAtKeyOpt;
-    use Json.FromJson.fromJson
-    use Json.FromJson.fromJsonAt
-    use Json.FromJson.fromNullableJson
-    use Json.Path.Path
     use Json.ToJson.toJson
+    use Json.Path
 
     @Test
     pub def testBool01(): Unit \ Assert = testRoundTrip(true)

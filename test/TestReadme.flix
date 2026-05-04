@@ -2,11 +2,11 @@ mod TestReadme {
     use Json.ToJson
     use Json.FromJson;
     use Json.FromJson.fromJsonAt;
-    use Json.Path.Path;
+    use Json.Path;
     use Json.JsonElement;
     use Json.JsonError;
-    use Json.getAtKey;
-    use Json.getAtKeyOpt;
+    use Json.FromJson.getAtKey;
+    use Json.FromJson.getAtKeyOpt;
     use Json.Path.{!!};
 
     enum Person({

@@ -1,7 +1,7 @@
 mod Json.Path {
+    use Json.JsonElement
     use Json.JsonElement.JsonArray;
     use Json.JsonElement.JsonObject;
-    use Json.JsonElement;
     use Json.Utils.escape;
     use Path.{Root, AtIndex, AtKey}
 
