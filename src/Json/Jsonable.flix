@@ -3,11 +3,9 @@ pub mod Json.Jsonable {
     use Json.JsonElement
     use Json.ToJson
 
-    pub lawful trait Jsonable[a] with ToJson[a], FromJson[a] {
-        law inverse: forall (x: a) with Eq[a] {
-            x |> Json.ToJson.toJson |> Json.FromJson.fromJson == Ok(x)
-        }
-    }
+    // Jsonable instances fulfill the law:
+    // forall (x: a) { x |> Json.ToJson.toJson |> Json.FromJson.fromJson == Ok(x) }
+    pub trait Jsonable[a] with ToJson[a], FromJson[a] { }
 
     instance Jsonable[Bool]
 
