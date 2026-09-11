@@ -1,4 +1,4 @@
-mod Json.Path {
+pub mod Json.Path {
     use Json.JsonElement
     use Json.JsonElement.JsonArray;
     use Json.JsonElement.JsonObject;

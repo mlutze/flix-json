@@ -1,4 +1,4 @@
-mod Json.Parse {
+pub mod Json.Parse {
     use Json.JsonElement
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     use Option.flatMap;
