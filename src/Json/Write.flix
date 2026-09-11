@@ -1,4 +1,4 @@
-mod Json.Write {
+pub mod Json.Write {
     use Json.JsonElement
     use Json.JsonElement.{JsonObject, JsonArray, JsonString, JsonNumber, JsonBool, JsonNull}
     use Json.Utils.escape
