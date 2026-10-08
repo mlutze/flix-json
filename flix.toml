@@ -1,7 +1,4 @@
 [package]
-name        = "flix-json"
-version     = "0.13.4"
+version     = "0.13.5"
 flix        = "0.49.0"
-description = "Flix library for reading and writing JSON"
-authors     = ["Matthew Lutze"]
 repository  = "github:mlutze/flix-json"
