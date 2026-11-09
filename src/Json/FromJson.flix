@@ -102,7 +102,7 @@ pub mod Json.FromJson {
 
     instance FromJson[List[a]] with FromJson[a] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, List[a]] = match x {
-            case JsonArray(v) => v |> Vector.toList |> List.zipWithIndex |> Result.traverse(match (i, val) -> Json.FromJson.fromJsonAt(p !! i, val))
+            case JsonArray(v) => v |> Vector.toList |> List.zipWithIndex |> Result.traverse(match (i, value) -> Json.FromJson.fromJsonAt(p !! i, value))
             case _ => Err(JsonError(p, Set#{"array"}))
         }
     }
@@ -110,7 +110,7 @@ pub mod Json.FromJson {
     instance FromJson[Vector[a]] with FromJson[a] {
         pub def fromJsonAt(p: Path, x: JsonElement): Result[JsonError, Vector[a]] = match x {
             case JsonArray(v) =>
-                v |> Vector.toList |> List.zipWithIndex |> Result.traverse(match (i, val) -> Json.FromJson.fromJsonAt(p !! i, val)) |> Result.map(List.toVector)
+                v |> Vector.toList |> List.zipWithIndex |> Result.traverse(match (i, value) -> Json.FromJson.fromJsonAt(p !! i, value)) |> Result.map(List.toVector)
             case _ => Err(JsonError(p, Set#{"array"}))
         }
     }
@@ -206,7 +206,7 @@ pub mod Json.FromJson {
     pub def getAtKey(p: Path, key: k, m: Map[String, JsonElement]): Result[JsonError, v] with ToString[k], FromJson[v] = {
         match Map.get("${key}", m) {
             case None => Err(JsonError(p, Set#{"object with key '${key}'"}))
-            case Some(val) => Json.FromJson.fromJsonAt(p !! "${key}", val)
+            case Some(value) => Json.FromJson.fromJsonAt(p !! "${key}", value)
         }
     }
 
@@ -221,9 +221,9 @@ pub mod Json.FromJson {
         use Result.flatMap;
         match Map.get("${key}", m) {
             case None => Ok(None)
-            case Some(val) =>
+            case Some(value) =>
                 forM (
-                    res <- Json.FromJson.fromJsonAt(p !! "${key}", val)
+                    res <- Json.FromJson.fromJsonAt(p !! "${key}", value)
                 ) yield {
                     Some(res)
                 }
