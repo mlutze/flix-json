@@ -57,18 +57,18 @@ pub mod Json.Parse {
                 (_, tail1) <- whitespace(tail);
                 (_, tail2) <- require(':', tail1);
                 (_, tail3) <- whitespace(tail2);
-                (val, tail4) <- value(tail3);
+                (value, tail4) <- value(tail3);
                 (_, tail5) <- whitespace(tail4);
                 res <- match tail5 {
                     case ',' :: tail6 => forM (
                             (_, tail7) <- whitespace(tail6);
                             (tailKeyVals, tail8) <- keyVals(tail7)
                         ) yield {
-                            let list = (key, val) :: tailKeyVals;
+                            let list = (key, value) :: tailKeyVals;
                             (list, tail8)
                         }
                     case '}' :: _ =>
-                        let list = (key, val) :: Nil;
+                        let list = (key, value) :: Nil;
                         Some((list, tail5))
                     case _ => None
                 }
@@ -101,13 +101,13 @@ pub mod Json.Parse {
                 let lst = MutList.empty(rc);
                 def walk(input) = {
                     let opt = forM(
-                        (val, tail) <- value(input);
+                        (value, tail) <- value(input);
                         (_, tail1) <- whitespace(tail)
-                    ) yield (val, tail1);
+                    ) yield (value, tail1);
                     match opt {
                         case None => None
-                        case Some((val, tail1)) =>
-                            MutList.push(val, lst);
+                        case Some((value, tail1)) =>
+                            MutList.push(value, lst);
                             match tail1 {
                                 case ']' :: _ => Some(tail1)
                                 case ',' :: tail2 =>
